@@ -1,0 +1,89 @@
+# large cap 10-Q
+abt    10-Q
+amzn   10-Q
+mo     10-Q
+c      10-Q
+cat    10-Q
+dis    10-Q
+nflx   10-Q
+tmus   10-Q
+# mid cap 10-Q
+wolf   10-Q
+jazz   10-Q
+seic   10-Q
+rh     10-Q
+pdce   10-Q
+amkr   10-Q
+wen    10-Q
+tdc    10-Q
+fl     10-Q
+enr    10-Q
+# small cap 10-Q
+lthm   10-Q
+skyw   10-Q
+kfy    10-Q
+oi     10-Q
+b      10-Q
+ktb    10-Q
+chuy   10-Q
+lpsn   10-Q
+gci    10-Q
+abtx   10-Q
+# selected since more recent filing is a 10-Q/A as of Sept 2022
+adra   10-Q
+# large cap 10-K
+exc    10-K
+pkg    10-K
+hpe    10-K
+aiz    10-K
+rok    10-K
+ben    10-K
+gl     10-K
+all    10-K
+rost   10-K
+sivb   10-K
+# mid cap 10-K
+syna   10-K
+x      10-K
+oln    10-K
+sfm    10-K
+smg    10-K
+wso    10-K
+sam    10-K
+wwd    10-K
+mms    10-K
+mlkn   10-K
+# small cap 10-K
+tbbk   10-K
+rdnt   10-K
+ueic   10-K
+atni   10-K
+cwt    10-K
+pke    10-K
+zyxi   10-K
+klic   10-K
+mdc    10-K
+nbhc   10-K
+# S-1 recent filing CIK's per search 2022-09-18
+# https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&CIK=&type=s-1&company=&dateb=&owner=include&start=0&count=80&output=atom
+0001156784  S-1
+0001912287  S-1
+0001398805  S-1
+0001886894  S-1
+0001638287  S-1
+0001893448  S-1
+0001144879  S-1
+0001839412  S-1
+0001707079  S-1
+0001704795  S-1
+0001425627  S-1
+0001861063  S-1
+0001726711  S-1
+0001841800  S-1
+0001074828  S-1
+0001895144  S-1
+0001450704  S-1
+0001076262  S-1
+0001726711  S-1
+0001527352  S-1
+

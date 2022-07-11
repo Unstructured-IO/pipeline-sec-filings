@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  notebooks:
+    image: pipeline-family-sec-filings-dev:latest
+    user: notebook-user
+    entrypoint: jupyter-notebook
+    command: "--ip 0.0.0.0 --no-browser --NotebookApp.token='' --NotebookApp.password=''"
+    expose:
+      - "8888"
+    ports:
+      - "127.0.0.1:8888:8888"
+    volumes:
+      - "../pipeline-notebooks:/home/notebook-user/pipeline-notebooks"
+      - "../exploration-notebooks:/home/notebook-user/exploration-notebooks"
