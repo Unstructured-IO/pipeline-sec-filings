@@ -1,4 +1,0 @@
-# NOTE(robinson) - QA is a separate set of requirements because QA is not needed to run
-# the API and QA mercury has dependency conflicts with several packages in dev
-jupyter
-mljar-mercury
