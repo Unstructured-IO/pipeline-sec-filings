@@ -39,7 +39,6 @@ class SECSection(Enum):
     DEFAULTS = r"defaults (?:up)?on .*securities"
     MINE_SAFETY = r"mine safety disclosures?"
     OTHER_INFORMATION = r"other information"
-    EXHIBITS = r"^exhibits$"
     UNRESOLVED_STAFF_COMMENTS = r"unresolved staff comments"
     PROPERTIES = r"^properties$"
     MARKET_FOR_REGISTRANT_COMMON_EQUITY = (
@@ -49,7 +48,7 @@ class SECSection(Enum):
     FOREIGN_JURISDICTIONS = r"diclosure .*foreign jurisdictions .*inspection"
     EXECUTIVE_OFFICERS = r"executive officers"
     ACCOUNTING_FEES = r"accounting fees"
-    EXHIBITS_AND_FINANCIAL_SCHEDULES = r"exhibits .*financial statement schedules$"
+    EXHIBITS = r"^exhibits?(?: .*financial statement schedules)$"
     FORM_SUMMARY = r"^form .*summary$"
     # NOTE(yuming): Additional section titles used in test_real_examples.py,
     # maybe change this when custom regex string param is allowed.
@@ -88,7 +87,7 @@ SECTIONS_10K = (
     SECSection.PRINCIPAL_STOCKHOLDERS,  # ITEM 12
     SECSection.RELATED_PARTY_TRANSACTIONS,  # ITEM 13
     SECSection.ACCOUNTING_FEES,  # ITEM 14
-    SECSection.EXHIBITS_AND_FINANCIAL_SCHEDULES,  # ITEM 15
+    SECSection.EXHIBITS,  # ITEM 15
     SECSection.FORM_SUMMARY,  # ITEM 16
 )
 

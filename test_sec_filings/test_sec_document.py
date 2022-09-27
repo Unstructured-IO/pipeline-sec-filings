@@ -78,6 +78,39 @@ def sample_document(form_type, table_toc, use_toc):
 </SEC-DOCUMENT>"""
 
 
+@pytest.fixture
+def sample_document_with_last_sections(form_type, has_form_summary_section, has_exhibits_section):
+    is_s1 = form_type == "S-1"
+    show_exhibit = (not is_s1) and has_exhibits_section
+    show_form_summary = (not is_s1) and has_form_summary_section
+
+    table_toc = f"""<table>
+    <tr><td><p>TABLE OF CONTENTS</p></td><td></td></tr>
+    <tr><td></td><td></td></tr>
+    <p>{'Part I. OTHER INFORMATION' if not is_s1 else 'None'}</p>
+    <p>{'ITEM 1. ' if not is_s1 else ''}PROSPECTUS SUMMARY</p>
+    {'<tr><td><p>ITEM 7 EXHIBIT</p></td><td>1</td></tr>' if show_exhibit else ''}
+    {'<tr><td><p>ITEM 8 FORM 10-K SUMMARY</p></td><td>1</td></tr>' if show_form_summary else ''}
+    </table>"""
+
+    return f"""<SEC-DOCUMENT>
+    <TYPE>{form_type}
+    <COMPANY>Proctor & Gamble
+    <HTML>
+        {table_toc}
+        <p>SECURITY AND EXCHANGE COMISSION FILING</p>
+        <p>{'Part I.' if not is_s1 else 'None'}</p>
+        <p>{'OTHER INFORMATION' if not is_s1 else 'None'}</p>
+        <p>{'ITEM 1. ' if not is_s1 else ''}PROSPECTUS SUMMARY</p>
+        <p>This is a section on prospectus.</p>
+        {'<p>ITEM 7 EXHIBIT</p>' if show_exhibit else ''}
+        {'<p>This is a section on exhibit.</p>' if show_exhibit else ''}
+        {'<p>ITEM 8 FORM 10-K SUMMARY</p>' if show_form_summary else ''}
+        {'<p>This is a section on form summary.</p>' if show_form_summary else ''}
+    </HTML>
+</SEC-DOCUMENT>"""
+
+
 class MockElement:
     def __init__(self, text):
         self.text = text
@@ -155,9 +188,37 @@ def test__get_toc_sections(sample_document, form_type):
     # fails to find the section_toc because it's not in the document
     section_toc, next_section_toc = sec_document._get_toc_sections(SECSection.EXHIBITS, toc)
     assert (section_toc, next_section_toc) == (None, None)
+    assert sec_document.get_section_narrative(SECSection.EXHIBITS) == []
 
 
-@pytest.mark.parametrize("section", ["risk factors", "capitalization", "dividend policy"])
+@pytest.mark.parametrize(
+    "form_type, has_form_summary_section, has_exhibits_section",
+    product(
+        ["10-K"],
+        [True, False],
+        [True, False],
+    ),
+)
+def test__is_10k_last_section(
+    sample_document_with_last_sections, has_form_summary_section, has_exhibits_section
+):
+    sec_document = SECDocument.from_string(sample_document_with_last_sections)
+    toc = sec_document.get_table_of_contents()
+    # only has form_summary_section
+    if has_form_summary_section and (not has_exhibits_section):
+        assert sec_document._is_10k_last_section(SECSection.FORM_SUMMARY, toc)
+    # only has exhibits_section
+    if (not has_form_summary_section) and has_exhibits_section:
+        assert sec_document._is_10k_last_section(SECSection.EXHIBITS, toc)
+    # has both form_summary_section and exhibits_section
+    if has_form_summary_section and has_exhibits_section:
+        assert sec_document._is_10k_last_section(SECSection.FORM_SUMMARY, toc)
+        assert not sec_document._is_10k_last_section(SECSection.EXHIBITS, toc)
+
+
+@pytest.mark.parametrize(
+    "section", [SECSection.RISK_FACTORS, SECSection.CAPITALIZATION, SECSection.DIVIDEND_POLICY]
+)
 def test_get_10k_section_narrative_processes_empty_doc(section):
     sec_document = SECDocument.from_string("<SEC-DOCUMENT><TYPE>10-K</SEC-DOCUMENT>")
     sections = sec_document.get_section_narrative(section)
