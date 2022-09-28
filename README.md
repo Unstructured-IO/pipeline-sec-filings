@@ -89,7 +89,7 @@ curl -X 'POST' \
   -H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
   -F 'file=@rgld-10-K-85535-000155837021011343.xbrl' \
-  -F section_regex=risk factors | jq -C . | less -R
+  -F 'section_regex=risk factors' | jq -C . | less -R
 ```
 
 The result will be:
