@@ -184,7 +184,7 @@ class SECDocument(HTMLDocument):
 
         # NOTE(yuming): Checks if section_toc is the last section in toc based on
         # the structure of the 10-K and 10-Q filings or fail to find the section title in TOC.
-        if self._is_10k_last_section(section, toc) or next_section_toc is None:
+        if self._is_last_section_in_report(section, toc) or next_section_toc is None:
             # returns everything after section_start_element in doc
             return get_narrative_texts(doc_after_section_heading)
 
@@ -221,25 +221,27 @@ class SECDocument(HTMLDocument):
             self.filing_type = type_tag.text.strip()
         return self.document_tree
 
-    def _is_10k_last_section(self, section: SECSection, toc: HTMLDocument) -> bool:
-        """Checks to see if the section is the last section in toc."""
-        if self.filing_type not in REPORT_TYPES:
-            return False
-        elif section == SECSection.FORM_SUMMARY:
-            return True
-        elif section == SECSection.EXHIBITS:
-            form_summary_section = first(
-                el
-                for el in toc.elements
-                if is_section_elem(SECSection.FORM_SUMMARY, el, self.filing_type)
-            )
-            # if FORM_SUMMARY is not in toc, the last section is EXHIBITS
-            if form_summary_section is None:
+    def _is_last_section_in_report(self, section: SECSection, toc: HTMLDocument) -> bool:
+        """Checks to see if the section is the last section in toc for a report types filing."""
+        # Note(yuming): This method assume the section already exists in toc.
+        if self.filing_type in ["10-K", "10-K/A"]:
+            # try to get FORM_SUMMARY as last section, else then try to get EXHIBITS.
+            if section == SECSection.FORM_SUMMARY:
                 return True
-            else:
-                return False
-        else:
-            return False
+            if section == SECSection.EXHIBITS:
+                form_summary_section = first(
+                    el
+                    for el in toc.elements
+                    if is_section_elem(SECSection.FORM_SUMMARY, el, self.filing_type)
+                )
+                # if FORM_SUMMARY is not in toc, the last section is EXHIBITS
+                if form_summary_section is None:
+                    return True
+        if self.filing_type in ["10-Q", "10-Q/A"]:
+            # try to get EXHIBITS as last section.
+            if section == SECSection.EXHIBITS:
+                return True
+        return False
 
 
 def get_narrative_texts(doc: HTMLDocument) -> List[Text]:

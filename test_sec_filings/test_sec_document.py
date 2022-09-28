@@ -192,28 +192,20 @@ def test__get_toc_sections(sample_document, form_type):
 
 
 @pytest.mark.parametrize(
-    "form_type, has_form_summary_section, has_exhibits_section",
-    product(
-        ["10-K"],
-        [True, False],
-        [True, False],
-    ),
+    "form_type, has_form_summary_section, has_exhibits_section, expected_last_section",
+    [
+        ("10-K", True, False, SECSection.FORM_SUMMARY),
+        ("10-K", False, True, SECSection.EXHIBITS),
+        ("10-K", True, True, SECSection.FORM_SUMMARY),
+        ("10-Q", False, True, SECSection.EXHIBITS),
+    ]
 )
-def test__is_10k_last_section(
-    sample_document_with_last_sections, has_form_summary_section, has_exhibits_section
+def test__is_last_section_in_report(
+    sample_document_with_last_sections, expected_last_section
 ):
     sec_document = SECDocument.from_string(sample_document_with_last_sections)
     toc = sec_document.get_table_of_contents()
-    # only has form_summary_section
-    if has_form_summary_section and (not has_exhibits_section):
-        assert sec_document._is_10k_last_section(SECSection.FORM_SUMMARY, toc)
-    # only has exhibits_section
-    if (not has_form_summary_section) and has_exhibits_section:
-        assert sec_document._is_10k_last_section(SECSection.EXHIBITS, toc)
-    # has both form_summary_section and exhibits_section
-    if has_form_summary_section and has_exhibits_section:
-        assert sec_document._is_10k_last_section(SECSection.FORM_SUMMARY, toc)
-        assert not sec_document._is_10k_last_section(SECSection.EXHIBITS, toc)
+    assert sec_document._is_last_section_in_report(expected_last_section, toc)
 
 
 @pytest.mark.parametrize(
