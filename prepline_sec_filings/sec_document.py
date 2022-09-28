@@ -183,15 +183,11 @@ class SECDocument(HTMLDocument):
         doc_after_section_heading = self.after_element(section_start_element)
 
         # NOTE(yuming): Checks if section_toc is the last section in toc based on
-        # the structure of the report filings.
-        if self._is_last_section_in_report(section, toc):
+        # the structure of the report filings or fails to find the section title in TOC.
+        # returns everything up to the next Title element
+        # to avoid the worst case of returning the entire doc.
+        if self._is_last_section_in_report(section, toc) or next_section_toc is None:
             # returns everything after section_start_element in doc
-            return [el for el in doc_after_section_heading.elements]
-
-        if next_section_toc is None:
-            # NOTE(yuming): fails to find the section title in TOC,
-            # returns everything up to the next Title element
-            # to avoid the worst case of returning the entire doc.
             return get_narrative_texts(doc_after_section_heading, up_to_next_title=True)
 
         # NOTE(yuming): map next_section_toc to the section title after TOC
