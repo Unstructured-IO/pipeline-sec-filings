@@ -65,3 +65,41 @@ def test_risk_narrative_api(form_type, section, tmpdir):
             "type": "NarrativeText",
         },
     ]
+
+
+@pytest.mark.parametrize(
+    "form_type, section",
+    [
+        ("10-K", "RISK_FACTORS"),
+        ("10-Q", "RISK_FACTORS"),
+        ("S-1", "RISK_FACTORS"),
+    ],
+)
+def test_risk_narrative_api_with_custom_regex(form_type, section, tmpdir):
+    sample_document = generate_sample_document(form_type)
+    filename = os.path.join(tmpdir.dirname, "wilderness.xbrl")
+    with open(filename, "w") as f:
+        f.write(sample_document)
+
+    # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
+    app.state.limiter.reset()
+    client = TestClient(app)
+    response = client.post(
+        "sec-filings/v0.0.1/section",
+        files={"file": (filename, open(filename, "rb"), "text/plain")},
+        data={"section_regex": ["risk factors"]},
+    )
+
+    assert response.status_code == 200
+    response_dict = response.json()
+
+    assert response_dict["REGEX_0"] == [
+        {
+            "text": "The business could be attacked by wolverines.",
+            "type": "NarrativeText",
+        },
+        {
+            "text": "The business could be attacked by bears.",
+            "type": "NarrativeText",
+        },
+    ]

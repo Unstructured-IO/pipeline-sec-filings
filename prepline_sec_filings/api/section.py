@@ -53,11 +53,17 @@ class timeout:
         raise TimeoutError(self.error_message)
 
     def __enter__(self):
-        signal.signal(signal.SIGALRM, self.handle_timeout)
-        signal.alarm(self.seconds)
+        try:
+            signal.signal(signal.SIGALRM, self.handle_timeout)
+            signal.alarm(self.seconds)
+        except ValueError:
+            pass
 
     def __exit__(self, type, value, traceback):
-        signal.alarm(0)
+        try:
+            signal.alarm(0)
+        except ValueError:
+            pass
 
 
 def get_regex_enum(section_regex):
@@ -98,17 +104,14 @@ def pipeline_api(text, m_section=[], m_section_regex=[]):
         else:
             m_section = [enum.name for enum in SECTIONS_S1]
     for section in m_section:
-        results[section] = sec_document.get_section_narrative(
-            section_string_to_enum[section]
-        )
+        results[section] = sec_document.get_section_narrative(section_string_to_enum[section])
     for i, section_regex in enumerate(m_section_regex):
         regex_enum = get_regex_enum(section_regex)
         with timeout(seconds=60):
             section_elements = sec_document.get_section_narrative(regex_enum)
             results[f"REGEX_{i}"] = section_elements
     return {
-        section: convert_to_isd(section_narrative)
-        for section, section_narrative in results.items()
+        section: convert_to_isd(section_narrative) for section, section_narrative in results.items()
     }
 
 
