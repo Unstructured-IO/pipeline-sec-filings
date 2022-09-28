@@ -33,6 +33,7 @@ from prepline_sec_filings.sec_document import (
 
 from enum import Enum
 import re
+import signal
 
 from unstructured.staging.base import convert_to_isd
 from prepline_sec_filings.sections import (
@@ -41,6 +42,22 @@ from prepline_sec_filings.sections import (
     SECTIONS_10Q,
     SECTIONS_S1,
 )
+
+
+class timeout:
+    def __init__(self, seconds=1, error_message="Timeout"):
+        self.seconds = seconds
+        self.error_message = error_message
+
+    def handle_timeout(self, signum, frame):
+        raise TimeoutError(self.error_message)
+
+    def __enter__(self):
+        signal.signal(signal.SIGALRM, self.handle_timeout)
+        signal.alarm(self.seconds)
+
+    def __exit__(self, type, value, traceback):
+        signal.alarm(0)
 
 
 def get_regex_enum(section_regex):
@@ -86,8 +103,9 @@ def pipeline_api(text, m_section=[], m_section_regex=[]):
         )
     for i, section_regex in enumerate(m_section_regex):
         regex_enum = get_regex_enum(section_regex)
-        section_elements = sec_document.get_section_narrative(regex_enum)
-        results[f"REGEX_{i}"] = section_elements
+        with timeout(seconds=60):
+            section_elements = sec_document.get_section_narrative(regex_enum)
+            results[f"REGEX_{i}"] = section_elements
     return {
         section: convert_to_isd(section_narrative)
         for section, section_narrative in results.items()
