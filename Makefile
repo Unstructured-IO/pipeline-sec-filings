@@ -47,7 +47,6 @@ pip-compile:
 	pip-compile requirements/base.in
 	pip-compile requirements/dev.in
 	pip-compile requirements/test.in
-	pip-compile requirements/qa.in
 
 
 #########
