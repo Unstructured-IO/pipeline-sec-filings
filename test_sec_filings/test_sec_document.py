@@ -228,10 +228,19 @@ def test_get_filing_type_is_none_when_missing():
     assert sec_document.filing_type is None
 
 
-@pytest.mark.parametrize("form_type, use_toc", [("10-K", True)])
-def test_get_narrative_texts_up_to_next_title(sample_document):
-    sec_document = SECDocument.from_string(sample_document)
+def test_get_narrative_texts_up_to_next_title():
+    document_starts_with_narrative_text = """
+    <SEC-DOCUMENT>
+    <TYPE> 10-K
+    <COMPANY>Proctor & Gamble
+    <HTML>
+        <p>this is a narrative text.</p>
+        <p>'NEXT TITLE'</p>
+    </HTML>
+    </SEC-DOCUMENT>"""
+    sec_document = SECDocument.from_string(document_starts_with_narrative_text)
     narrative_texts_up_to_next_title = get_narrative_texts(sec_document, up_to_next_title=True)
+    assert narrative_texts_up_to_next_title == [NarrativeText(text="this is a narrative text.")]
 
 
 @pytest.mark.parametrize(
