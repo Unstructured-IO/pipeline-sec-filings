@@ -70,14 +70,14 @@ def test_risk_narrative_api(form_type, section, tmpdir):
 
 
 @pytest.mark.parametrize(
-    "form_type, section",
+    "form_type",
     [
-        ("10-K", "RISK_FACTORS"),
-        ("10-Q", "RISK_FACTORS"),
-        ("S-1", "RISK_FACTORS"),
+        ("10-K"),
+        ("10-Q"),
+        ("S-1"),
     ],
 )
-def test_risk_narrative_api_with_custom_regex(form_type, section, tmpdir):
+def test_risk_narrative_api_with_custom_regex(form_type, tmpdir):
     sample_document = generate_sample_document(form_type)
     filename = os.path.join(tmpdir.dirname, "wilderness.xbrl")
     with open(filename, "w") as f:
@@ -108,14 +108,14 @@ def test_risk_narrative_api_with_custom_regex(form_type, section, tmpdir):
 
 
 @pytest.mark.parametrize(
-    "form_type, section",
+    "form_type",
     [
-        ("10-K", "PROSPECTUS_SUMMARY"),
-        ("10-Q", "PROSPECTUS_SUMMARY"),
-        ("S-1", "PROSPECTUS_SUMMARY"),
+        ("10-K"),
+        ("10-Q"),
+        ("S-1"),
     ],
 )
-def test_risk_narrative_api_with_custom_regex_with_special_chars(form_type, section, tmpdir):
+def test_risk_narrative_api_with_custom_regex_with_special_chars(form_type, tmpdir):
     sample_document = generate_sample_document(form_type)
     filename = os.path.join(tmpdir.dirname, "wilderness.xbrl")
     with open(filename, "w") as f:
