@@ -112,7 +112,8 @@ def pipeline_api(text, m_section=[], m_section_regex=[]):
             section_elements = sec_document.get_section_narrative(regex_enum)
             results[f"REGEX_{i}"] = section_elements
     return {
-        section: convert_to_isd(section_narrative) for section, section_narrative in results.items()
+        section: convert_to_isd(section_narrative)
+        for section, section_narrative in results.items()
     }
 
 
