@@ -5,7 +5,7 @@ on:
   # We can switch to running on push if we make this repo public or are fine with
   # paying for CI minutes.
   push:
-    branches: [ main ]
+    branches: [ main , core-140/ci-add-shellcheck]
   pull_request:
     branches: [ main ]
 
@@ -71,6 +71,13 @@ jobs:
       run: |
         source .venv/bin/activate
         make check
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: ShellCheck
+        uses: ludeeus/action-shellcheck@master
 
   test:
     runs-on: ubuntu-latest
