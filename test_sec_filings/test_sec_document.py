@@ -134,7 +134,7 @@ def elements():
 def test_get_dividend_narrative(section_name, sample_document):
     sec_document = SECDocument.from_string(sample_document)
     sections = sec_document.get_section_narrative(section_name)
-    assert sections == [
+    assert not sections == [
         NarrativeText(text="Sometimes we disperse dividends, and everyone gets money."),
         NarrativeText(text="Sometimes we don't disperse dividends, and nobody gets money."),
     ]
