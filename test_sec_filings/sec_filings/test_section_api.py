@@ -106,6 +106,7 @@ def test_risk_narrative_api_with_custom_regex(form_type, section, tmpdir):
         },
     ]
 
+
 @pytest.mark.parametrize(
     "form_type, section",
     [
