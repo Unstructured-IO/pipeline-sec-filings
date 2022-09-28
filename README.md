@@ -85,11 +85,11 @@ example you can run the following command to request the risk factors section:
 
 ```
 curl -X 'POST' \
-  'https://api.unstructured.io/sec-filings/v0.0.1/section' \
+  'http://localhost:8000/sec-filings/v0.0.1/section' \
   -H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
   -F 'file=@rgld-10-K-85535-000155837021011343.xbrl' \
-  -F 'section_regex=risk factors' | jq -C . | less -R
+  -F 'section_regex=risk factors'  | jq -C . | less -R
 ```
 
 The result will be:

@@ -115,7 +115,7 @@ def test_risk_narrative_api_with_custom_regex(form_type, section, tmpdir):
         ("S-1", "PROSPECTUS_SUMMARY"),
     ],
 )
-def test_risk_narrative_api_with_custom_regex(form_type, section, tmpdir):
+def test_risk_narrative_api_with_custom_regex_with_special_chars(form_type, section, tmpdir):
     sample_document = generate_sample_document(form_type)
     filename = os.path.join(tmpdir.dirname, "wilderness.xbrl")
     with open(filename, "w") as f:
