@@ -198,14 +198,13 @@ def test__get_toc_sections(sample_document, form_type):
         ("10-K", False, True, SECSection.EXHIBITS),
         ("10-K", True, True, SECSection.FORM_SUMMARY),
         ("10-Q", False, True, SECSection.EXHIBITS),
-    ]
+    ],
 )
-def test__is_last_section_in_report(
-    sample_document_with_last_sections, expected_last_section
-):
+def test__is_last_section_in_report(sample_document_with_last_sections, expected_last_section):
     sec_document = SECDocument.from_string(sample_document_with_last_sections)
     toc = sec_document.get_table_of_contents()
     assert sec_document._is_last_section_in_report(expected_last_section, toc)
+    assert len(sec_document.get_section_narrative(expected_last_section)) == 1
 
 
 @pytest.mark.parametrize(

@@ -48,7 +48,7 @@ class SECSection(Enum):
     FOREIGN_JURISDICTIONS = r"diclosure .*foreign jurisdictions .*inspection"
     EXECUTIVE_OFFICERS = r"executive officers"
     ACCOUNTING_FEES = r"accounting fees"
-    EXHIBITS = r"^exhibits?(?: .*financial statement schedules)$"
+    EXHIBITS = r"^exhibits?(.*financial statement schedules)?$"
     FORM_SUMMARY = r"^form .*summary$"
     # NOTE(yuming): Additional section titles used in test_real_examples.py,
     # maybe change this when custom regex string param is allowed.
