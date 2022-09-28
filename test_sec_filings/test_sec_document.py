@@ -15,6 +15,7 @@ from prepline_sec_filings.sec_document import (
     match_s1_toc_title_to_section,
     match_10k_toc_title_to_section,
     remove_item_from_section_text,
+    get_narrative_texts,
 )
 from prepline_sec_filings.sections import SECSection
 
@@ -225,6 +226,12 @@ def test_get_filing_type(sample_document, form_type):
 def test_get_filing_type_is_none_when_missing():
     sec_document = SECDocument.from_string("<SEC-DOCUMENT></SEC-DOCUMENT>")
     assert sec_document.filing_type is None
+
+
+@pytest.mark.parametrize("form_type, use_toc", [("10-K", True)])
+def test_get_narrative_texts_up_to_next_title(sample_document):
+    sec_document = SECDocument.from_string(sample_document)
+    narrative_texts_up_to_next_title = get_narrative_texts(sec_document, up_to_next_title=True)
 
 
 @pytest.mark.parametrize(

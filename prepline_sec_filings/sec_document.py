@@ -192,7 +192,7 @@ class SECDocument(HTMLDocument):
             # NOTE(yuming): fails to find the section title in TOC,
             # returns everything up to the next Title element
             # to avoid the worst case of returning the entire doc.
-            return get_narrative_texts(doc_after_section_heading)
+            return get_narrative_texts(doc_after_section_heading, up_to_next_title=True)
 
         # NOTE(yuming): map next_section_toc to the section title after TOC
         # to find the start of the next section, which is also the end of the section we want
@@ -203,7 +203,7 @@ class SECDocument(HTMLDocument):
         if section_end_element is None:
             # NOTE(yuming): returns everything up to the next Title element
             # to avoid the worst case of returning the entire doc.
-            return get_narrative_texts(doc_after_section_heading)
+            return get_narrative_texts(doc_after_section_heading, up_to_next_title=True)
 
         return get_narrative_texts(doc_after_section_heading.before_element(section_end_element))
 
@@ -251,9 +251,21 @@ class SECDocument(HTMLDocument):
         return False
 
 
-def get_narrative_texts(doc: HTMLDocument) -> List[Text]:
-    """Returns a list of NarrativeText or ListItem from document."""
-    return [el for el in doc.elements if isinstance(el, NarrativeText) or isinstance(el, ListItem)]
+def get_narrative_texts(doc: HTMLDocument, up_to_next_title: Optional[bool] = False) -> List[Text]:
+    """Returns a list of NarrativeText or ListItem from document,
+    with option to return narrative texts only up to next Title element."""
+    if up_to_next_title:
+        narrative_texts = []
+        for el in doc.elements:
+            if isinstance(el, NarrativeText) or isinstance(el, ListItem):
+                narrative_texts.append(el)
+            else:
+                break
+        return narrative_texts
+    else:
+        return [
+            el for el in doc.elements if isinstance(el, NarrativeText) or isinstance(el, ListItem)
+        ]
 
 
 def is_section_elem(section: SECSection, elem: Text, filing_type: Optional[str]) -> bool:
