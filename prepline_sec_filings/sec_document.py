@@ -184,7 +184,7 @@ class SECDocument(HTMLDocument):
 
         # NOTE(yuming): Checks if section_toc is the last section in toc based on
         # the structure of the report filings.
-        if section_toc == toc.elements[-1] and self._is_last_section_in_report(section, toc):
+        if self._is_last_section_in_report(section, toc):
             # returns everything after section_start_element in doc
             return [el for el in doc_after_section_heading.elements]
 
