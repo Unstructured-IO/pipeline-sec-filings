@@ -108,7 +108,7 @@ def pipeline_api(text, m_section=[], m_section_regex=[]):
         )
     for i, section_regex in enumerate(m_section_regex):
         regex_enum = get_regex_enum(section_regex)
-        with timeout(seconds=60):
+        with timeout(seconds=5):
             section_elements = sec_document.get_section_narrative(regex_enum)
             results[f"REGEX_{i}"] = section_elements
     return {
