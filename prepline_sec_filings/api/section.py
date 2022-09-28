@@ -19,7 +19,6 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 RATE_LIMIT = os.environ.get("PIPELINE_API_RATE_LIMIT", "1/second")
 
-# pipeline-api
 from prepline_sec_filings.sections import (
     section_string_to_enum,
     validate_section_names,
@@ -30,6 +29,11 @@ from prepline_sec_filings.sec_document import (
     REPORT_TYPES,
     VALID_FILING_TYPES,
 )
+
+
+from enum import Enum
+import re
+
 from unstructured.staging.base import convert_to_isd
 from prepline_sec_filings.sections import (
     ALL_SECTIONS,
@@ -39,7 +43,19 @@ from prepline_sec_filings.sections import (
 )
 
 
-def pipeline_api(text, m_section=[]):
+def get_regex_enum(section_regex):
+    class CustomSECSection(Enum):
+        raw_regex = section_regex.encode("unicode_escape").decode()
+        CUSTOM = re.compile(raw_regex)
+
+        @property
+        def pattern(self):
+            return self.value
+
+    return CustomSECSection.CUSTOM
+
+
+def pipeline_api(text, m_section=[], m_section_regex=[]):
     """Many supported sections including: RISK_FACTORS, MANAGEMENT_DISCUSSION, and many more"""
     validate_section_names(m_section)
 
@@ -66,6 +82,10 @@ def pipeline_api(text, m_section=[]):
         results[section] = sec_document.get_section_narrative(
             section_string_to_enum[section]
         )
+    for i, section_regex in enumerate(m_section_regex):
+        regex_enum = get_regex_enum(section_regex)
+        section_elements = sec_document.get_section_narrative(regex_enum)
+        results[f"REGEX_{i}"] = section_elements
     return {
         section: convert_to_isd(section_narrative)
         for section, section_narrative in results.items()
@@ -78,12 +98,14 @@ async def pipeline_1(
     request: Request,
     file: UploadFile = File(),
     section: List[str] = Form(default=[]),
+    section_regex: List[str] = Form(default=[]),
 ):
 
     text = file.file.read().decode("utf-8")
     response = pipeline_api(
         text,
         section,
+        section_regex,
     )
 
     return response
