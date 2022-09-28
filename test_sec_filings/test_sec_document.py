@@ -15,6 +15,7 @@ from prepline_sec_filings.sec_document import (
     match_s1_toc_title_to_section,
     match_10k_toc_title_to_section,
     remove_item_from_section_text,
+    get_narrative_texts,
 )
 from prepline_sec_filings.sections import SECSection
 
@@ -74,6 +75,39 @@ def sample_document(form_type, table_toc, use_toc):
         <p>Why did we build it here?</p>
         <p>We really should not have done this.</p>
         <p>It was Steve's idea.</p>
+    </HTML>
+</SEC-DOCUMENT>"""
+
+
+@pytest.fixture
+def sample_document_with_last_sections(form_type, has_form_summary_section, has_exhibits_section):
+    is_s1 = form_type == "S-1"
+    show_exhibit = (not is_s1) and has_exhibits_section
+    show_form_summary = (not is_s1) and has_form_summary_section
+
+    table_toc = f"""<table>
+    <tr><td><p>TABLE OF CONTENTS</p></td><td></td></tr>
+    <tr><td></td><td></td></tr>
+    <p>{'Part I. OTHER INFORMATION' if not is_s1 else 'None'}</p>
+    <p>{'ITEM 1. ' if not is_s1 else ''}PROSPECTUS SUMMARY</p>
+    {'<tr><td><p>ITEM 7 EXHIBIT</p></td><td>1</td></tr>' if show_exhibit else ''}
+    {'<tr><td><p>ITEM 8 FORM 10-K SUMMARY</p></td><td>1</td></tr>' if show_form_summary else ''}
+    </table>"""
+
+    return f"""<SEC-DOCUMENT>
+    <TYPE>{form_type}
+    <COMPANY>Proctor & Gamble
+    <HTML>
+        {table_toc}
+        <p>SECURITY AND EXCHANGE COMISSION FILING</p>
+        <p>{'Part I.' if not is_s1 else 'None'}</p>
+        <p>{'OTHER INFORMATION' if not is_s1 else 'None'}</p>
+        <p>{'ITEM 1. ' if not is_s1 else ''}PROSPECTUS SUMMARY</p>
+        <p>This is a section on prospectus.</p>
+        {'<p>ITEM 7 EXHIBIT</p>' if show_exhibit else ''}
+        {'<p>This is a section on exhibit.</p>' if show_exhibit else ''}
+        {'<p>ITEM 8 FORM 10-K SUMMARY</p>' if show_form_summary else ''}
+        {'<p>This is a section on form summary.</p>' if show_form_summary else ''}
     </HTML>
 </SEC-DOCUMENT>"""
 
@@ -155,9 +189,28 @@ def test__get_toc_sections(sample_document, form_type):
     # fails to find the section_toc because it's not in the document
     section_toc, next_section_toc = sec_document._get_toc_sections(SECSection.EXHIBITS, toc)
     assert (section_toc, next_section_toc) == (None, None)
+    assert sec_document.get_section_narrative(SECSection.EXHIBITS) == []
 
 
-@pytest.mark.parametrize("section", ["risk factors", "capitalization", "dividend policy"])
+@pytest.mark.parametrize(
+    "form_type, has_form_summary_section, has_exhibits_section, expected_last_section",
+    [
+        ("10-K", True, False, SECSection.FORM_SUMMARY),
+        ("10-K", False, True, SECSection.EXHIBITS),
+        ("10-K", True, True, SECSection.FORM_SUMMARY),
+        ("10-Q", False, True, SECSection.EXHIBITS),
+    ],
+)
+def test__is_last_section_in_report(sample_document_with_last_sections, expected_last_section):
+    sec_document = SECDocument.from_string(sample_document_with_last_sections)
+    toc = sec_document.get_table_of_contents()
+    assert sec_document._is_last_section_in_report(expected_last_section, toc)
+    assert len(sec_document.get_section_narrative(expected_last_section)) == 1
+
+
+@pytest.mark.parametrize(
+    "section", [SECSection.RISK_FACTORS, SECSection.CAPITALIZATION, SECSection.DIVIDEND_POLICY]
+)
 def test_get_10k_section_narrative_processes_empty_doc(section):
     sec_document = SECDocument.from_string("<SEC-DOCUMENT><TYPE>10-K</SEC-DOCUMENT>")
     sections = sec_document.get_section_narrative(section)
@@ -173,6 +226,21 @@ def test_get_filing_type(sample_document, form_type):
 def test_get_filing_type_is_none_when_missing():
     sec_document = SECDocument.from_string("<SEC-DOCUMENT></SEC-DOCUMENT>")
     assert sec_document.filing_type is None
+
+
+def test_get_narrative_texts_up_to_next_title():
+    document_starts_with_narrative_text = """
+    <SEC-DOCUMENT>
+    <TYPE> 10-K
+    <COMPANY>Proctor & Gamble
+    <HTML>
+        <p>this is a narrative text.</p>
+        <p>'NEXT TITLE'</p>
+    </HTML>
+    </SEC-DOCUMENT>"""
+    sec_document = SECDocument.from_string(document_starts_with_narrative_text)
+    narrative_texts_up_to_next_title = get_narrative_texts(sec_document, up_to_next_title=True)
+    assert narrative_texts_up_to_next_title == [NarrativeText(text="this is a narrative text.")]
 
 
 @pytest.mark.parametrize(

@@ -1,6 +1,6 @@
 from functools import partial
 import re
-from typing import Callable, Final, List, Optional, Iterable, Iterator, Any, Tuple
+from typing import Final, List, Optional, Iterable, Iterator, Any, Tuple
 
 import numpy as np
 import numpy.typing as npt
@@ -110,7 +110,6 @@ class SECDocument(HTMLDocument):
         # usually does not contain any tables and sometimes tables are used for
         # title formating
         section_elements: List[NarrativeText] = list()
-        is_section = get_section_function(section, self.filing_type)
         in_section = False
         for element in self.elements:
             is_title = is_possible_title(element.text)
@@ -123,7 +122,7 @@ class SECDocument(HTMLDocument):
                 elif isinstance(element, NarrativeText) or isinstance(element, ListItem):
                     section_elements.append(element)
 
-            if is_title and is_section(element.text):
+            if is_title and is_section_elem(section, element, self.filing_type):
                 in_section = True
 
         return section_elements
@@ -132,14 +131,19 @@ class SECDocument(HTMLDocument):
         """Identifies section title and next section title in TOC under the given section heading"""
         # Note(yuming): The matching section and the section after the matching section
         # can be thought of as placeholders to look for matching content below the toc.
-        is_section = get_section_function(section, self.filing_type)
-        section_toc = first(el for el in toc.elements if is_section(el.text))
+        section_toc = first(
+            el for el in toc.elements if is_section_elem(section, el, self.filing_type)
+        )
         if section_toc is None:
             # NOTE(yuming): unable to identify the section in TOC
             return (None, None)
 
         after_section_toc = toc.after_element(section_toc)
-        next_section_toc = first(el for el in after_section_toc.elements if not is_section(el.text))
+        next_section_toc = first(
+            el
+            for el in after_section_toc.elements
+            if not is_section_elem(section, el, self.filing_type)
+        )
         if next_section_toc is None:
             # NOTE(yuming): unable to identify the next section title in TOC,
             # will leads to failure in finding the end of the section
@@ -159,15 +163,17 @@ class SECDocument(HTMLDocument):
         # Note(yuming): section_toc is the section title in TOC,
         # next_section_toc is the section title right after section_toc in TOC
         section_toc, next_section_toc = self._get_toc_sections(section, toc)
-        if section_toc is None or next_section_toc is None:
-            # NOTE(yuming): failures to find the start of the section or the end of the section
+        if section_toc is None:
+            # NOTE(yuming): fail to find the section title in TOC
             return []
 
-        # Note(yuming): we use doc after next_section_toc instead of after toc
+        # NOTE(yuming): we use doc after next_section_toc instead of after toc
         # to workaround an issue where the TOC grabbed too many elements by
         # starting to parse after the section matched in the TOC
-        doc_after_section_toc = self.after_element(next_section_toc)
-        # Note(yuming): map section_toc to the section title after TOC
+        doc_after_section_toc = self.after_element(
+            next_section_toc if next_section_toc else section_toc
+        )
+        # NOTE(yuming): map section_toc to the section title after TOC
         # to find the start of the section
         section_start_element = get_element_by_title(
             reversed(doc_after_section_toc.elements), section_toc.text, self.filing_type
@@ -175,20 +181,27 @@ class SECDocument(HTMLDocument):
         if section_start_element is None:
             return []
         doc_after_section_heading = self.after_element(section_start_element)
-        # Note(yuming): map next_section_toc to the section title after TOC
+
+        # NOTE(yuming): Checks if section_toc is the last section in toc based on
+        # the structure of the report filings or fails to find the section title in TOC.
+        # returns everything up to the next Title element
+        # to avoid the worst case of returning the entire doc.
+        if self._is_last_section_in_report(section, toc) or next_section_toc is None:
+            # returns everything after section_start_element in doc
+            return get_narrative_texts(doc_after_section_heading, up_to_next_title=True)
+
+        # NOTE(yuming): map next_section_toc to the section title after TOC
         # to find the start of the next section, which is also the end of the section we want
         section_end_element = get_element_by_title(
             doc_after_section_heading.elements, next_section_toc.text, self.filing_type
         )
+
         if section_end_element is None:
-            # NOTE(alan): Alternatively maybe we can have a fallback plan since we know where the
-            # section starts
-            return []
-        return [
-            el
-            for el in doc_after_section_heading.before_element(section_end_element).elements
-            if isinstance(el, NarrativeText) or isinstance(el, ListItem)
-        ]
+            # NOTE(yuming): returns everything up to the next Title element
+            # to avoid the worst case of returning the entire doc.
+            return get_narrative_texts(doc_after_section_heading, up_to_next_title=True)
+
+        return get_narrative_texts(doc_after_section_heading.before_element(section_end_element))
 
     def get_risk_narrative(self) -> List[NarrativeText]:
         """Identifies narrative text sections that fall under the "risk" heading"""
@@ -211,20 +224,60 @@ class SECDocument(HTMLDocument):
             self.filing_type = type_tag.text.strip()
         return self.document_tree
 
+    def _is_last_section_in_report(self, section: SECSection, toc: HTMLDocument) -> bool:
+        """Checks to see if the section is the last section in toc for a report types filing."""
+        # Note(yuming): This method assume the section already exists in toc.
+        if self.filing_type in ["10-K", "10-K/A"]:
+            # try to get FORM_SUMMARY as last section, else then try to get EXHIBITS.
+            if section == SECSection.FORM_SUMMARY:
+                return True
+            if section == SECSection.EXHIBITS:
+                form_summary_section = first(
+                    el
+                    for el in toc.elements
+                    if is_section_elem(SECSection.FORM_SUMMARY, el, self.filing_type)
+                )
+                # if FORM_SUMMARY is not in toc, the last section is EXHIBITS
+                if form_summary_section is None:
+                    return True
+        if self.filing_type in ["10-Q", "10-Q/A"]:
+            # try to get EXHIBITS as last section.
+            if section == SECSection.EXHIBITS:
+                return True
+        return False
 
-def get_section_function(section: SECSection, filing_type: Optional[str]) -> Callable[[str], bool]:
-    """Gets a function to identify a section title from a section name for a given filing type"""
+
+def get_narrative_texts(doc: HTMLDocument, up_to_next_title: Optional[bool] = False) -> List[Text]:
+    """Returns a list of NarrativeText or ListItem from document,
+    with option to return narrative texts only up to next Title element."""
+    if up_to_next_title:
+        narrative_texts = []
+        for el in doc.elements:
+            if isinstance(el, NarrativeText) or isinstance(el, ListItem):
+                narrative_texts.append(el)
+            else:
+                break
+        return narrative_texts
+    else:
+        return [
+            el for el in doc.elements if isinstance(el, NarrativeText) or isinstance(el, ListItem)
+        ]
+
+
+def is_section_elem(section: SECSection, elem: Text, filing_type: Optional[str]) -> bool:
+    """Checks to see if a text element matches the section title for a given filing type"""
     _raise_for_invalid_filing_type(filing_type)
     if section is SECSection.RISK_FACTORS:
-        return partial(is_risk_title, filing_type=filing_type)
+        return is_risk_title(elem.text, filing_type=filing_type)
     else:
 
-        def _match_section_pattern(text):
+        def _is_matching_section_pattern(text):
             return bool(re.search(section.pattern, clean_sec_text(text, lowercase=True)))
 
         if filing_type in REPORT_TYPES:
-            return lambda text: _match_section_pattern(remove_item_from_section_text(text))
-        return _match_section_pattern
+            return _is_matching_section_pattern(remove_item_from_section_text(elem.text))
+        else:
+            return _is_matching_section_pattern(elem.text)
 
 
 def is_item_title(title: str, filing_type: Optional[str]) -> bool:
