@@ -155,6 +155,13 @@ check-tests:
 	black --line-length 100 test_${PIPELINE_PACKAGE} --check
 	flake8 test_${PIPELINE_PACKAGE}
 
+## check-scripts:               run shellcheck
+.PHONY: check-scripts
+check-scripts:
+    # Fail if any of these files have warnings
+	shellcheck .//scripts/docker-build.sh
+    for file in $(find ./ -name "*.sh"); do shellcheck --format=gcc $file; done;
+
 ## tidy:                        run black
 .PHONY: tidy
 tidy:
