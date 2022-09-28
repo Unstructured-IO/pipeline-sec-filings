@@ -22,6 +22,8 @@ def generate_sample_document(form_type):
         <p>The business could be attacked by bears.</p>
         <p>{'ITEM 1B. ' if not is_s1 else ''}UNRESOLVED STAFF COMMENTS</p>
         <p>None</p>
+        <p>PROSPECTUS SUMMARY</p>
+        <p>Here is a summary of the prospectus</p>
     </HTML>
 </SEC-DOCUMENT>"""
 
@@ -100,6 +102,39 @@ def test_risk_narrative_api_with_custom_regex(form_type, section, tmpdir):
         },
         {
             "text": "The business could be attacked by bears.",
+            "type": "NarrativeText",
+        },
+    ]
+
+@pytest.mark.parametrize(
+    "form_type, section",
+    [
+        ("10-K", "PROSPECTUS_SUMMARY"),
+        ("10-Q", "PROSPECTUS_SUMMARY"),
+        ("S-1", "PROSPECTUS_SUMMARY"),
+    ],
+)
+def test_risk_narrative_api_with_custom_regex(form_type, section, tmpdir):
+    sample_document = generate_sample_document(form_type)
+    filename = os.path.join(tmpdir.dirname, "wilderness.xbrl")
+    with open(filename, "w") as f:
+        f.write(sample_document)
+
+    # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
+    app.state.limiter.reset()
+    client = TestClient(app)
+    response = client.post(
+        "sec-filings/v0.0.1/section",
+        files={"file": (filename, open(filename, "rb"), "text/plain")},
+        data={"section_regex": ["^(?:prospectus )?summary$"]},
+    )
+
+    assert response.status_code == 200
+    response_dict = response.json()
+
+    assert response_dict["REGEX_0"] == [
+        {
+            "text": "Here is a summary of the prospectus",
             "type": "NarrativeText",
         },
     ]
