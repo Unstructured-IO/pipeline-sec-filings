@@ -77,8 +77,45 @@ formats/colors the outputs and lets your scroll through the results.
     ...
   ]
 }
+```
+
+
+You can also pass in custom section regex patterns using the `section_regex` parameter. For
+example you can run the following command to request the risk factors section:
 
 ```
+curl -X 'POST' \
+  'https://api.unstructured.io/sec-filings/v0.0.1/section' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: multipart/form-data' \
+  -F 'file=@rgld-10-K-85535-000155837021011343.xbrl' \
+  -F section_regex=risk factors | jq -C . | less -R
+```
+
+The result will be:
+
+```
+{
+  "REGEX_0": [
+    {
+      "text": "You should carefully consider the risks described in this section. Our future performance is subject to risks and uncertainties that could have a material adverse effect on our business, results of operations, and financial condition and the trading price of our common stock. We may be subject to other risks and uncertainties not presently known to us. In addition, please see our note about forward-looking statements included in the MD&A.",
+      "type": "NarrativeText"
+    },
+    {
+      "text": "Our revenue is subject to volatility in metal prices, which could negatively affect our results of operations or cash flow.",
+      "type": "NarrativeText"
+    },
+    {
+      "text": "Market prices for gold, silver, copper, nickel, and other metals may fluctuate widely over time and are affected by numerous factors beyond our control. These factors include metal supply and demand, industrial and jewelry fabrication, investment demand, central banking actions, inflation expectations, currency values, interest rates, forward sales by metal producers, and political, trade, economic, or banking conditions.",
+      "type": "NarrativeText"
+    },
+    ...
+  ]
+}
+```
+
+As with the `section` parameter, you can request multiple regexes by passing in multiple values
+for the `section_regex` parameter. The requested pattern will be treated as a raw string.
 
 ### Helper functions for SEC EDGAR API
 
