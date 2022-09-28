@@ -5,7 +5,7 @@ on:
   # We can switch to running on push if we make this repo public or are fine with
   # paying for CI minutes.
   push:
-    branches: [ main ]
+    branches: [ main , core-182/ci-add-test-sample-docs]
   pull_request:
     branches: [ main ]
 
