@@ -29,6 +29,8 @@ from prepline_sec_filings.sec_document import (
     REPORT_TYPES,
     VALID_FILING_TYPES,
 )
+
+
 from enum import Enum
 import re
 import signal
@@ -66,10 +68,7 @@ class timeout:
 
 def get_regex_enum(section_regex):
     class CustomSECSection(Enum):
-        # NOTE(robinson) - The encode/decode step treats the requested
-        # pattern as a raw string, such as r"risk factors"
-        raw_regex = section_regex.encode("unicode_escape").decode()
-        CUSTOM = re.compile(raw_regex)
+        CUSTOM = re.compile(section_regex)
 
         @property
         def pattern(self):
