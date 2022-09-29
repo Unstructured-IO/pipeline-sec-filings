@@ -141,7 +141,7 @@ dl-test-artifacts-source:
 
 ## check:                       runs linters (includes tests)
 .PHONY: check
-check: check-src check-tests
+check: check-src check-tests check-scripts
 
 ## check-src:                   runs linters (source only, no tests)
 .PHONY: check-src
