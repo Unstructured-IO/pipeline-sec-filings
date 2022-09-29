@@ -24,7 +24,7 @@ jobs:
       with:
         path: |
           .venv
-        key: ci-venv-${{ hashFiles('requirements/*.txt') }}
+        key: ci-venv-sec-docs-${{ hashFiles('requirements/*.txt') }}
     # NOTE(robinson) - We only need the SSH key setup until the unstructured
     # and unstructured_api_tools repos are made public
     - name: Setup SSH keys
@@ -45,6 +45,7 @@ jobs:
         python${{ env.PYTHON_VERSION }} -m venv .venv
         source .venv/bin/activate
         make install-ci
+        make dl-test-artifacts
     - uses: actions/cache@v3
       id: nltk-cache
       with:
@@ -98,7 +99,6 @@ jobs:
     - name: Run sample SEC documents tests
       run: |
         source .venv/bin/activate
-        make dl-test-artifacts
         make test-sample-docs
 
   changelog:
