@@ -117,6 +117,19 @@ The result will be:
 As with the `section` parameter, you can request multiple regexes by passing in multiple values
 for the `section_regex` parameter. The requested pattern will be treated as a raw string.
 
+You can also use special regex characters in your pattern. The
+following example makes a request using the regex for the properties section, which includes
+special characters:
+
+```
+curl -X 'POST' \
+  'http://localhost:8000/sec-filings/v0.0.1/section' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: multipart/form-data' \
+  -F 'file=@rgld-10-K-85535-000155837021011343.xbrl' \
+  -F 'section_regex=^properties$'  | jq -C . | less -R
+```
+
 ### Helper functions for SEC EDGAR API
 
 You can use some of the functions provided in `prepline_sec_filings.fetch` to directly view or manipulate the filings available from the SEC's [EDGAR API](https://www.sec.gov/edgar/searchedgar/companysearch.html).
