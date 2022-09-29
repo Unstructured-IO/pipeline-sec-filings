@@ -68,6 +68,7 @@ jobs:
       with:
         path: |
           .venv
+          sample-sec-docs
         key: ci-venv-sec-docs-${{ hashFiles('requirements/*.txt') }}
     - name: Lint
       run: |
@@ -86,6 +87,7 @@ jobs:
       with:
         path: |
           .venv
+          sample-sec-docs
         key: ci-venv-sec-docs-${{ hashFiles('requirements/*.txt') }}
     - uses: actions/cache@v3
       id: nltk-cache
