@@ -117,17 +117,15 @@ The result will be:
 As with the `section` parameter, you can request multiple regexes by passing in multiple values
 for the `section_regex` parameter. The requested pattern will be treated as a raw string.
 
-You can also use special regex characters in your pattern. The
-following example makes a request using the regex for the properties section, which includes
-special characters:
+You can also use special regex characters in your pattern, as show in the example below:
 
 ```
-curl -X 'POST' \
+ curl -X 'POST' \
   'http://localhost:8000/sec-filings/v0.0.1/section' \
   -H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
   -F 'file=@rgld-10-K-85535-000155837021011343.xbrl' \
-  -F 'section_regex=^properties$'  | jq -C . | less -R
+  -F "section_regex=^(\S+\W?)+$"
 ```
 
 ### Helper functions for SEC EDGAR API
