@@ -90,11 +90,16 @@ jobs:
       with:
         path: /home/runner/nltk_data
         key: ci-nltk-${{ hashFiles('requirements/*.txt') }}
-    - name: Test
+    - name: Run core tests 
       run: |
         source .venv/bin/activate
         make test
         make check-coverage
+    - name: Run sample SEC documents tests
+      run: |
+        source .venv/bin/activate
+        make dl-test-artifacts
+        make test-sample-docs
 
   changelog:
     runs-on: ubuntu-latest
