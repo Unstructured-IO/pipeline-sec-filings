@@ -37,7 +37,7 @@ jobs:
       id: nltk-cache
       with:
         path: /home/runner/nltk_data
-        key: ci-nltk-${{ hashFiles('requirements/*.txt') }}-2
+        key: ci-nltk-${{ hashFiles('requirements/*.txt') }}
     - name: Download NLTK (no cache hit)
       if: steps.nltk-cache.outputs.cache-hit != 'true'
       run: |
@@ -79,7 +79,7 @@ jobs:
       id: nltk-cache
       with:
         path: /home/runner/nltk_data
-        key: ci-nltk-${{ hashFiles('requirements/*.txt') }}-2
+        key: ci-nltk-${{ hashFiles('requirements/*.txt') }}
     - name: Run core tests 
       run: |
         source .venv/bin/activate
