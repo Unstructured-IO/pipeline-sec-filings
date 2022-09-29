@@ -30,6 +30,10 @@ from prepline_sec_filings.sec_document import (
     REPORT_TYPES,
     VALID_FILING_TYPES,
 )
+from enum import Enum
+import re
+import signal
+
 from unstructured.staging.base import convert_to_isd
 from prepline_sec_filings.sections import (
     ALL_SECTIONS,
@@ -39,7 +43,40 @@ from prepline_sec_filings.sections import (
 )
 
 
-def pipeline_api(text, m_section=[]):
+class timeout:
+    def __init__(self, seconds=1, error_message="Timeout"):
+        self.seconds = seconds
+        self.error_message = error_message
+
+    def handle_timeout(self, signum, frame):
+        raise TimeoutError(self.error_message)
+
+    def __enter__(self):
+        try:
+            signal.signal(signal.SIGALRM, self.handle_timeout)
+            signal.alarm(self.seconds)
+        except ValueError:
+            pass
+
+    def __exit__(self, type, value, traceback):
+        try:
+            signal.alarm(0)
+        except ValueError:
+            pass
+
+
+def get_regex_enum(section_regex):
+    class CustomSECSection(Enum):
+        CUSTOM = re.compile(section_regex)
+
+        @property
+        def pattern(self):
+            return self.value
+
+    return CustomSECSection.CUSTOM
+
+
+def pipeline_api(text, m_section=[], m_section_regex=[]):
     """Many supported sections including: RISK_FACTORS, MANAGEMENT_DISCUSSION, and many more"""
     validate_section_names(m_section)
 
@@ -66,6 +103,11 @@ def pipeline_api(text, m_section=[]):
         results[section] = sec_document.get_section_narrative(
             section_string_to_enum[section]
         )
+    for i, section_regex in enumerate(m_section_regex):
+        regex_enum = get_regex_enum(section_regex)
+        with timeout(seconds=5):
+            section_elements = sec_document.get_section_narrative(regex_enum)
+            results[f"REGEX_{i}"] = section_elements
     return {
         section: convert_to_isd(section_narrative)
         for section, section_narrative in results.items()
@@ -78,12 +120,14 @@ async def pipeline_1(
     request: Request,
     file: UploadFile = File(),
     section: List[str] = Form(default=[]),
+    section_regex: List[str] = Form(default=[]),
 ):
 
     text = file.file.read().decode("utf-8")
     response = pipeline_api(
         text,
         section,
+        section_regex,
     )
 
     return response
