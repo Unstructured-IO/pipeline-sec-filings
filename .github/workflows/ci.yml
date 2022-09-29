@@ -24,27 +24,15 @@ jobs:
       with:
         path: |
           .venv
-        key: ci-venv-${{ hashFiles('requirements/*.txt') }}
-    # NOTE(robinson) - We only need the SSH key setup until the unstructured
-    # and unstructured_api_tools repos are made public
-    - name: Setup SSH keys
-      if: steps.virtualenv-cache.outputs.cache-hit != 'true'
-      run: |
-        mkdir -p ~/.ssh
-        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-        chmod 400 ~/.ssh/id_rsa
-        echo "$SSH_PUBLIC_KEY" > ~/.ssh/id_rsa.pub
-        echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-      env:
-        SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
-        SSH_PUBLIC_KEY: ${{secrets.SSH_PUBLIC_KEY}}
-        SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
+          sample-sec-docs
+        key: ci-venv-sec-docs-${{ hashFiles('requirements/*.txt', 'sample-sec-docs/sample-sec-docs.sha256') }}
     - name: Setup virtual environment (no cache hit)
       if: steps.virtualenv-cache.outputs.cache-hit != 'true'
       run: |
         python${{ env.PYTHON_VERSION }} -m venv .venv
         source .venv/bin/activate
         make install-ci
+        make dl-test-artifacts
     - uses: actions/cache@v3
       id: nltk-cache
       with:
@@ -66,7 +54,8 @@ jobs:
       with:
         path: |
           .venv
-        key: ci-venv-${{ hashFiles('requirements/*.txt') }}
+          sample-sec-docs
+        key: ci-venv-sec-docs-${{ hashFiles('requirements/*.txt') }}
     - name: Lint
       run: |
         source .venv/bin/activate
@@ -91,7 +80,8 @@ jobs:
       with:
         path: |
           .venv
-        key: ci-venv-${{ hashFiles('requirements/*.txt') }}
+          sample-sec-docs
+        key: ci-venv-sec-docs-${{ hashFiles('requirements/*.txt') }}
     - uses: actions/cache@v3
       id: nltk-cache
       with:
@@ -105,7 +95,6 @@ jobs:
     - name: Run sample SEC documents tests
       run: |
         source .venv/bin/activate
-        make dl-test-artifacts
         make test-sample-docs
 
   changelog:
@@ -134,7 +123,8 @@ jobs:
       with:
         path: |
           .venv
-        key: ci-venv-${{ hashFiles('requirements/*.txt') }}
+          sample-sec-docs
+        key: ci-venv-sec-docs-${{ hashFiles('requirements/*.txt') }}
     - name: API Consistency
       run: |
         source .venv/bin/activate
