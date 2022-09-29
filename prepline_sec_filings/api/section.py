@@ -19,6 +19,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 RATE_LIMIT = os.environ.get("PIPELINE_API_RATE_LIMIT", "1/second")
 
+# pipeline-api
 from prepline_sec_filings.sections import (
     section_string_to_enum,
     validate_section_names,
