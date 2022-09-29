@@ -67,7 +67,7 @@ jobs:
       with:
         path: |
           .venv
-        key: ci-venv-${{ hashFiles('requirements/*.txt') }}
+        key: ci-venv-sec-docs-${{ hashFiles('requirements/*.txt') }}
     - name: Lint
       run: |
         source .venv/bin/activate
@@ -85,7 +85,7 @@ jobs:
       with:
         path: |
           .venv
-        key: ci-venv-${{ hashFiles('requirements/*.txt') }}
+        key: ci-venv-sec-docs-${{ hashFiles('requirements/*.txt') }}
     - uses: actions/cache@v3
       id: nltk-cache
       with:
@@ -127,7 +127,7 @@ jobs:
       with:
         path: |
           .venv
-        key: ci-venv-${{ hashFiles('requirements/*.txt') }}
+        key: ci-venv-sec-docs-${{ hashFiles('requirements/*.txt') }}
     - name: API Consistency
       run: |
         source .venv/bin/activate
