@@ -29,7 +29,6 @@ from prepline_sec_filings.sec_document import (
     REPORT_TYPES,
     VALID_FILING_TYPES,
 )
-
 from enum import Enum
 import re
 import signal
