@@ -23,7 +23,7 @@ elif ! [ -r "$SSH_PRIVATE_KEY" ]; then
 fi
 
 
-DOCKER_BUILDKIT=1 docker buildx build --platform=linux/amd64 -f  docker/Dockerfile"${BUILD_TYPE}" \
+DOCKER_BUILDKIT=1 docker buildx build --platform=linux/amd64 -f docker/Dockerfile"${BUILD_TYPE}" \
   --build-arg PIP_VERSION="$PIP_VERSION" \
   --progress plain \
   --secret id=ssh_key,src="$SSH_PRIVATE_KEY" \
