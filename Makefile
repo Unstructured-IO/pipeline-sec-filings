@@ -141,7 +141,7 @@ dl-test-artifacts-source:
 
 ## check:                       runs linters (includes tests)
 .PHONY: check
-check: check-src check-tests
+check: check-src check-tests check-notebooks
 
 ## check-src:                   runs linters (source only, no tests)
 .PHONY: check-src
@@ -161,8 +161,18 @@ check-scripts:
     # Fail if any of these files have warnings
 	scripts/shellcheck.sh
 
+## check-notebooks:               run shellcheck
+.PHONY: check-notebooks
+check-notebooks:
+	scripts/format-nbs.py --check
+
 ## tidy:                        run black
 .PHONY: tidy
 tidy:
 	black --line-length 100 ${PACKAGE_NAME}
 	black --line-length 100 test_${PIPELINE_PACKAGE}
+
+## tidy-notebooks:	           execute notebooks and remove metadata
+.PHONY: tidy-notebooks
+tidy-notebooks:
+	scripts/format-nbs.py
