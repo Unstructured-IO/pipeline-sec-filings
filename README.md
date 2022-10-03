@@ -41,7 +41,7 @@ the `sample-sec-docs` folder, run:
 
 ```
 curl -X 'POST' \
-  'https://api.unstructured.io/sec-filings/v0.0.1/section' \
+  'https://api.unstructured.io/sec-filings/v0.0.2/section' \
   -H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
   -F 'file=@rgld-10-K-85535-000155837021011343.xbrl' \
@@ -85,7 +85,7 @@ example you can run the following command to request the risk factors section:
 
 ```
 curl -X 'POST' \
-  'http://localhost:8000/sec-filings/v0.0.1/section' \
+  'http://localhost:8000/sec-filings/v0.0.2/section' \
   -H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
   -F 'file=@rgld-10-K-85535-000155837021011343.xbrl' \
@@ -121,7 +121,7 @@ You can also use special regex characters in your pattern, as show in the exampl
 
 ```
  curl -X 'POST' \
-  'http://localhost:8000/sec-filings/v0.0.1/section' \
+  'http://localhost:8000/sec-filings/v0.0.2/section' \
   -H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
   -F 'file=@rgld-10-K-85535-000155837021011343.xbrl' \
