@@ -179,4 +179,4 @@ tidy:
 ## tidy-notebooks:	             execute notebooks and remove metadata
 .PHONY: tidy-notebooks
 tidy-notebooks:
-	scripts/format-nbs.py
+	scripts/check-and-format-notebooks.py
