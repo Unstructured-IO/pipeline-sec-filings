@@ -33,7 +33,7 @@ install-nltk-models:
 .PHONY: install-test
 install-test:
 	pip install -r requirements/test.txt
-	ipython kernel install --name "python3" --user
+	ipython kernel install --name "python3" --sys-prefix
 
 .PHONY: install-dev
 install-dev:
