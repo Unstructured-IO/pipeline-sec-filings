@@ -38,8 +38,12 @@ install-test:
 install-dev:
 	pip install -r requirements/dev.txt
 
+.PHONY: install-ipython-kernel
+install-ipython-kernel:
+	ipython kernel install --name "python3" --sys-prefix
+
 .PHONY: install-ci
-install-ci: install-base install-test
+install-ci: install-base install-test install-ipython-kernel
 
 ## pip-compile:                 compiles all base/dev/test requirements
 .PHONY: pip-compile
@@ -161,8 +165,18 @@ check-scripts:
     # Fail if any of these files have warnings
 	scripts/shellcheck.sh
 
+## check-notebooks:             check that executing and cleaning notebooks doesn't produce changes
+.PHONY: check-notebooks
+check-notebooks:
+	scripts/check-and-format-notebooks.py --check
+
 ## tidy:                        run black
 .PHONY: tidy
 tidy:
 	black --line-length 100 ${PACKAGE_NAME}
 	black --line-length 100 test_${PIPELINE_PACKAGE}
+
+## tidy-notebooks:	             execute notebooks and remove metadata
+.PHONY: tidy-notebooks
+tidy-notebooks:
+	scripts/check-and-format-notebooks.py
