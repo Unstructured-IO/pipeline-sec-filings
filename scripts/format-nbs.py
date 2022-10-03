@@ -11,13 +11,17 @@ import nbformat
 from unstructured_api_tools.pipelines.convert import read_notebook
 
 
-def process_nb(nb: dict, working_dir: Union[str, Path]) -> dict:
+def process_nb(nb: nbformat.NotebookNode, working_dir: Union[str, Path]) -> nbformat.NotebookNode:
+    """Execute cells in nb using working_dir as the working directory for imports, modifying the
+    notebook in place (in memory)."""
     ep = ExecutePreprocessor(timeout=600)
     ep.preprocess(nb, {"metadata": {"path": working_dir}})
     return nb
 
 
 def nb_paths(root_path: Union[str, Path]) -> List[Path]:
+    """Fetches all .ipynb filenames that belong to subdirectories of root_path (1 level deep) with
+    'notebooks' in the name."""
     root_path = Path(root_path)
     return [
         fn
@@ -31,6 +35,8 @@ def nb_paths(root_path: Union[str, Path]) -> List[Path]:
 
 
 def to_results_str(fns: List[Path], nonmatching_nbs: List[Path]) -> Tuple[str, str]:
+    """Given files that were checked and list of files that would be changed, produces a summary of
+    changes as well as a list of files to be changed"""
     unchanged = len(fns) - len(nonmatching_nbs)
     results = []
     if nonmatching_nbs:
