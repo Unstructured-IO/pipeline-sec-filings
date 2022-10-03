@@ -3,7 +3,11 @@ import pytest
 
 from fastapi.testclient import TestClient
 
+from unstructured_api_tools.pipelines.api_conventions import get_pipeline_path
+
 from prepline_sec_filings.api.section import app
+
+SECTION_ROUTE = get_pipeline_path("section")
 
 
 def generate_sample_document(form_type):
@@ -49,7 +53,7 @@ def test_risk_narrative_api(form_type, section, tmpdir):
     app.state.limiter.reset()
     client = TestClient(app)
     response = client.post(
-        "sec-filings/v0.0.1/section",
+        SECTION_ROUTE,
         files={"file": (filename, open(filename, "rb"), "text/plain")},
         data={"section": [section]},
     )
@@ -87,7 +91,7 @@ def test_risk_narrative_api_with_custom_regex(form_type, tmpdir):
     app.state.limiter.reset()
     client = TestClient(app)
     response = client.post(
-        "sec-filings/v0.0.1/section",
+        SECTION_ROUTE,
         files={"file": (filename, open(filename, "rb"), "text/plain")},
         data={"section_regex": ["risk factors"]},
     )
@@ -125,7 +129,7 @@ def test_risk_narrative_api_with_custom_regex_with_special_chars(form_type, tmpd
     app.state.limiter.reset()
     client = TestClient(app)
     response = client.post(
-        "sec-filings/v0.0.1/section",
+        SECTION_ROUTE,
         files={"file": (filename, open(filename, "rb"), "text/plain")},
         data={"section_regex": ["^(?:prospectus )?summary$"]},
     )

@@ -113,8 +113,8 @@ mccabe==0.7.0
     # via flake8
 mistune==2.0.4
     # via nbconvert
-mypy==0.981
-    # via -r requirements/dev.in
+mypy==0.982
+    # via -r dev.in
 mypy-extensions==0.4.3
     # via
     #   black
