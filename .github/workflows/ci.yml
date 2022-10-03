@@ -56,6 +56,11 @@ jobs:
           .venv
           sample-sec-docs
         key: ci-venv-sec-docs-${{ hashFiles('requirements/*.txt', 'sample-sec-docs/sample-sec-docs.sha256') }}
+    - uses: actions/cache@v3
+      id: nltk-cache
+      with:
+        path: /home/runner/nltk_data
+        key: ci-nltk-${{ hashFiles('requirements/*.txt') }}
     - name: Lint
       run: |
         source .venv/bin/activate
