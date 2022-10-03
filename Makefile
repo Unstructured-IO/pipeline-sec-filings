@@ -33,14 +33,17 @@ install-nltk-models:
 .PHONY: install-test
 install-test:
 	pip install -r requirements/test.txt
-	ipython kernel install --name "python3" --sys-prefix
 
 .PHONY: install-dev
 install-dev:
 	pip install -r requirements/dev.txt
 
+.PHONY: install-ipython-kernel
+install-ipython-kernel:
+	ipython kernel install --name "python3" --sys-prefix
+
 .PHONY: install-ci
-install-ci: install-base install-test
+install-ci: install-base install-test install-ipython-kernel
 
 ## pip-compile:                 compiles all base/dev/test requirements
 .PHONY: pip-compile
@@ -142,7 +145,7 @@ dl-test-artifacts-source:
 
 ## check:                       runs linters (includes tests)
 .PHONY: check
-check: check-src check-tests check-notebooks
+check: check-src check-tests
 
 ## check-src:                   runs linters (source only, no tests)
 .PHONY: check-src
@@ -162,7 +165,7 @@ check-scripts:
     # Fail if any of these files have warnings
 	scripts/shellcheck.sh
 
-## check-notebooks:               run shellcheck
+## check-notebooks:             check that executing and cleaning notebooks doesn't produce changes
 .PHONY: check-notebooks
 check-notebooks:
 	scripts/format-nbs.py --check
@@ -173,7 +176,7 @@ tidy:
 	black --line-length 100 ${PACKAGE_NAME}
 	black --line-length 100 test_${PIPELINE_PACKAGE}
 
-## tidy-notebooks:	           execute notebooks and remove metadata
+## tidy-notebooks:	             execute notebooks and remove metadata
 .PHONY: tidy-notebooks
 tidy-notebooks:
 	scripts/format-nbs.py
