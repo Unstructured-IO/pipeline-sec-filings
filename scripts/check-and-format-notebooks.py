@@ -72,12 +72,21 @@ if __name__ == "__main__":
         help="Check notebook format without making changes. Return code 0 means formatting would "
         "produce no changes. Return code 1 means some files would be changed.",
     )
+    parser.add_argument(
+        "notebooks",
+        metavar="notebook",
+        nargs="*",
+        help="Path(s) to notebook(s) to format (or check). If you don't pass any paths, "
+        "notebooks in any subfolders with 'notebooks' in the name will be processed.",
+        default=[],
+    )
     args = parser.parse_args()
     check = args.check
+    notebooks = args.notebooks
 
     root_path = Path(__file__).parent.parent
     nonmatching_nbs = []
-    fns = nb_paths(root_path)
+    fns = notebooks if notebooks else nb_paths(root_path)
     for fn in fns:
         nb = read_notebook(fn)
         modified_nb = deepcopy(nb)
