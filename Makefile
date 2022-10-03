@@ -168,7 +168,7 @@ check-scripts:
 ## check-notebooks:             check that executing and cleaning notebooks doesn't produce changes
 .PHONY: check-notebooks
 check-notebooks:
-	scripts/format-nbs.py --check
+	scripts/check-and-format-notebooks.py --check
 
 ## tidy:                        run black
 .PHONY: tidy
