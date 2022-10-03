@@ -17,8 +17,8 @@ def process_nb(nb: dict, working_dir: Union[str, Path]) -> dict:
     return nb
 
 
-def nb_paths() -> List[Path]:
-    root_path = Path(__file__).parent.parent
+def nb_paths(root_path: Union[str, Path]) -> List[Path]:
+    root_path = Path(root_path)
     return [
         fn
         for dir in root_path.iterdir()
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     root_path = Path(__file__).parent.parent
     nonmatching_nbs = []
-    fns = nb_paths()
+    fns = nb_paths(root_path)
     for fn in fns:
         nb = read_notebook(fn)
         modified_nb = deepcopy(nb)
