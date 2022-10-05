@@ -81,7 +81,7 @@ formats/colors the outputs and lets your scroll through the results.
 
 
 You can also pass in custom section regex patterns using the `section_regex` parameter. For
-example you can run the following command to request the risk factors section:
+example, you can run the following command to request the risk factors section:
 
 ```
 curl -X 'POST' \
@@ -117,7 +117,7 @@ The result will be:
 As with the `section` parameter, you can request multiple regexes by passing in multiple values
 for the `section_regex` parameter. The requested pattern will be treated as a raw string.
 
-You can also use special regex characters in your pattern, as show in the example below:
+You can also use special regex characters in your pattern, as shown in the example below:
 
 ```
  curl -X 'POST' \
