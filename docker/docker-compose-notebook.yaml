@@ -13,3 +13,4 @@ services:
     volumes:
       - "../pipeline-notebooks:/home/notebook-user/pipeline-notebooks"
       - "../exploration-notebooks:/home/notebook-user/exploration-notebooks"
+      - "../test_real_docs:/home/notebook-user/test_real_docs"
