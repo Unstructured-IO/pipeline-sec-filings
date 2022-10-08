@@ -143,3 +143,58 @@ def test_section_narrative_api_with_custom_regex_with_special_chars(form_type, t
             "type": "NarrativeText",
         },
     ]
+
+
+@pytest.mark.parametrize(
+    "form_type, section",
+    [
+        ("10-K", "RISK_FACTORS"),
+    ],
+)
+def test_section_narrative_api_with_wrong_media_type(form_type, section, tmpdir):
+    sample_document = generate_sample_document(form_type)
+    filename = os.path.join(tmpdir.dirname, "wilderness.xbrl")
+    with open(filename, "w") as f:
+        f.write(sample_document)
+
+    app.state.limiter.reset()
+    client = TestClient(app)
+    response = client.post(
+        SECTION_ROUTE,
+        files={"file": (filename, open(filename, "rb"), "text/plain")},
+        data={"section": [section]},
+        headers={"accept": "wrong/media_type"},
+    )
+
+    assert response.status_code == 415
+
+
+@pytest.mark.parametrize(
+    "form_type, section",
+    [
+        ("10-K", "RISK_FACTORS"),
+    ],
+)
+def test_section_narrative_api_with_confict_media_type(form_type, section, tmpdir):
+    sample_document = generate_sample_document(form_type)
+    filename = os.path.join(tmpdir.dirname, "wilderness.xbrl")
+    with open(filename, "w") as f:
+        f.write(sample_document)
+
+    app.state.limiter.reset()
+    client = TestClient(app)
+    response = client.post(
+        SECTION_ROUTE,
+        files={"file": (filename, open(filename, "rb"), "text/plain")},
+        data={"section": [section]},
+        headers={"accept": "text/csv"},
+    )
+
+    assert response.status_code == 409
+
+
+def test_section_narrative_api_healt_check():
+    client = TestClient(app)
+    response = client.get("./healthcheck")
+    
+    assert response.status_code == 200
