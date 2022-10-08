@@ -196,5 +196,5 @@ def test_section_narrative_api_with_confict_media_type(form_type, section, tmpdi
 def test_section_narrative_api_healt_check():
     client = TestClient(app)
     response = client.get("./healthcheck")
-    
+
     assert response.status_code == 200
