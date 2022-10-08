@@ -8,6 +8,7 @@ import inspect
 from typing import List
 
 from fastapi import status, FastAPI, File, Form, Request, UploadFile
+from fastapi.responses import PlainTextResponse
 from slowapi.errors import RateLimitExceeded
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -130,7 +131,27 @@ async def pipeline_1(
         section_regex,
     )
 
-    return response
+    media_type = request.headers.get("accept")
+    if media_type != "*/*":
+        response_type = media_type
+    elif "response_type" not in locals():
+        response_type = "*/*"
+
+    if (response_type == "application/json" and type(response) != dict) or (
+        response_type == "text/csv" and type(response) != str
+    ):
+        return PlainTextResponse(
+            content=f"Conflict in response type {response_type}.\n",
+            status_code=status.HTTP_409_CONFLICT,
+        )
+    valid_response_types = ["application/json", "text/csv", "*/*"]
+    if response_type in valid_response_types:
+        return response
+    else:
+        return PlainTextResponse(
+            content=f"Unsupported response type {response_type}.\n",
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+        )
 
 
 @app.get("/healthcheck", status_code=status.HTTP_200_OK)
