@@ -14,6 +14,10 @@ import pandas as pd
 from prepline_sec_filings.fetch import archive_url
 from prepline_sec_filings.sections import SECTIONS_10K, SECTIONS_10Q, SECTIONS_S1, SECSection
 from prepline_sec_filings.sec_document import SECDocument
+from unstructured_api_tools.pipelines.api_conventions import PipelineConfig
+
+
+config = PipelineConfig(os.path.join("..", "preprocessing-pipeline-family.yaml"))
 
 SEC_DOCS_DIR = os.environ.get("SEC_DOCS_DIR")
 CSV_FILES_DIR = os.environ.get("CSV_FILES_DIR")
