@@ -145,7 +145,7 @@ dl-test-artifacts-source:
 
 ## check:                       runs linters (includes tests)
 .PHONY: check
-check: check-src check-tests
+check: check-src check-tests check-version
 
 ## check-src:                   runs linters (source only, no tests)
 .PHONY: check-src
@@ -165,6 +165,16 @@ check-scripts:
     # Fail if any of these files have warnings
 	scripts/shellcheck.sh
 
+## check-version:           run check to ensure version in CHANGELOG.md matches references in files
+.PHONY: check-version
+check-version:
+    # Fail if syncing version would produce changes
+	scripts/version-sync.sh -c \
+	    -f README.md api-release \
+		-f preprocessing-pipeline-family.yaml release \
+		-f docs/api-spec.md api-release \
+		-f exploration-notebooks/exploration-10q-amended.ipynb api-release
+
 ## check-notebooks:             check that executing and cleaning notebooks doesn't produce changes
 .PHONY: check-notebooks
 check-notebooks:
@@ -180,3 +190,12 @@ tidy:
 .PHONY: tidy-notebooks
 tidy-notebooks:
 	scripts/check-and-format-notebooks.py
+
+## version-sync:            update references to version with most recent version from CHANGELOG.md
+.PHONY: version-sync
+version-sync:
+	scripts/version-sync.sh \
+	    -f README.md api-release \
+		-f preprocessing-pipeline-family.yaml release \
+		-f docs/api-spec.md api-release \
+		-f exploration-notebooks/exploration-10q-amended.ipynb api-release
