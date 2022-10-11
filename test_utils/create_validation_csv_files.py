@@ -24,7 +24,7 @@ CSV_FILES_DIR = os.environ.get("CSV_FILES_DIR")
 FILINGS_MANIFEST_JSON = os.environ.get("FILINGS_MANIFEST_JSON",
                                        os.path.join(SEC_DOCS_DIR, "sec_docs_manifest.json"))
 PIPELINE_SECTION_API_URL = os.environ.get("PIPELINE_SECTION_API_URL",
-                                          f"http://127.0.0.1:8000/sec-filings/{config['version']}/section")
+                                          f"http://127.0.0.1:8000/sec-filings/v{config['version']}/section")
 
 def _fetch_response_from_api_curl(sec_doc_filename):
     time.sleep(1)
