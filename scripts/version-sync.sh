@@ -100,13 +100,7 @@ then
     exit 1
 fi
 
-# Add files to this array that need to be kept in sync.
-# FILES_TO_CHECK=("$PIPELINE_CONFIG" "$README" "$API_SPEC" "$NOTEBOOK1")
-# Add patterns to this array to be matched in the above files.
-# RE_SEMVERS=("$RE_RELEASE" "$RE_API_RELEASE" "$RE_API_RELEASE" "$RE_API_RELEASE")
-# Add versions to this array to be used as replacements for the patterns matched above from the corresponding files.
-# UPDATED_VERSIONS=("$LAST_RELEASE" "$LAST_API_RELEASE" "$LAST_API_RELEASE" "$LAST_API_RELEASE")
-
+# Search files in FILES_TO_CHECK and change (or get diffs)
 declare -a FILES_TO_CHANGE=()
 
 for i in "${!FILES_TO_CHECK[@]}"; do
@@ -142,6 +136,7 @@ for i in "${!FILES_TO_CHECK[@]}"; do
     fi
 done
 
+# Exit with code determined by diffs founds and whether or not this is a check.
 if [ ${#FILES_TO_CHANGE[@]} -eq 0 ] || [ $CHECK -eq 0 ]; then
     exit 0
 else
