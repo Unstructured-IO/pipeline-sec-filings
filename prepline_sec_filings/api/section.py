@@ -114,7 +114,7 @@ def pipeline_api(text, m_section=[], m_section_regex=[]):
     }
 
 
-@app.post("/sec-filings/v0.0.2/section")
+@app.post("/sec-filings/v0.1.0/section")
 @limiter.limit(RATE_LIMIT)
 async def pipeline_1(
     request: Request,
