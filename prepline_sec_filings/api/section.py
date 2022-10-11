@@ -20,6 +20,16 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 RATE_LIMIT = os.environ.get("PIPELINE_API_RATE_LIMIT", "1/second")
 
+
+def _is_confict_response_type(media_type, response_type):
+    if media_type == "application/json" and response_type != dict:
+        return True
+    elif media_type == "text/csv" and response_type != str:
+        return True
+    else:
+        return False
+
+
 # pipeline-api
 from prepline_sec_filings.sections import (
     section_string_to_enum,
@@ -124,32 +134,27 @@ async def pipeline_1(
     section_regex: List[str] = Form(default=[]),
 ):
 
+    media_type = request.headers.get("accept")
+
     text = file.file.read().decode("utf-8")
+
     response = pipeline_api(
         text,
         section,
         section_regex,
     )
 
-    media_type = request.headers.get("accept")
-    if media_type != "*/*":
-        response_type = media_type
-    elif "response_type" not in locals():
-        response_type = "*/*"
-
-    if (response_type == "application/json" and type(response) != dict) or (
-        response_type == "text/csv" and type(response) != str
-    ):
+    if _is_confict_response_type(media_type, type(response)):
         return PlainTextResponse(
-            content=f"Conflict in response type {response_type}.\n",
+            content=f"Conflict in media type {media_type} with response type {type(response)}.\n",
             status_code=status.HTTP_409_CONFLICT,
         )
     valid_response_types = ["application/json", "text/csv", "*/*"]
-    if response_type in valid_response_types:
+    if media_type in valid_response_types:
         return response
     else:
         return PlainTextResponse(
-            content=f"Unsupported response type {response_type}.\n",
+            content=f"Unsupported media type {media_type}.\n",
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         )
 
