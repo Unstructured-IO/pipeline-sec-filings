@@ -101,7 +101,7 @@ then
 fi
 
 # Search files in FILES_TO_CHECK and change (or get diffs)
-declare -a FILES_TO_CHANGE=()
+declare FAILED_CHECK=0
 
 for i in "${!FILES_TO_CHECK[@]}"; do
     FILE_TO_CHANGE=${FILES_TO_CHECK[$i]}
@@ -114,7 +114,6 @@ for i in "${!FILES_TO_CHECK[@]}"; do
         printf "Error: No semver version found in file %s.\n" "$FILE_TO_CHANGE"
         exit 1
     else
-        FILES_TO_CHANGE+=("$FILE_TO_CHANGE")
         # Replace semver in VERSIONFILE with semver obtained from SOURCE_FILE
         TMPFILE=$(mktemp /tmp/new_version.XXXXXX)
         sed -E -r "s/$RE_SEMVER/$UPDATED_VERSION/" "$FILE_TO_CHANGE" > "$TMPFILE"
@@ -126,6 +125,7 @@ for i in "${!FILES_TO_CHECK[@]}"; do
                 printf "version sync would make no changes to %s.\n" "$FILE_TO_CHANGE"
                 rm "$TMPFILE"
             else
+                FAILED_CHECK=1
                 printf "version sync would make the following changes to %s:\n%s\n" "$FILE_TO_CHANGE" "$DIFF"
                 rm "$TMPFILE"
             fi
@@ -136,9 +136,9 @@ for i in "${!FILES_TO_CHECK[@]}"; do
     fi
 done
 
-# Exit with code determined by diffs founds and whether or not this is a check.
-if [ ${#FILES_TO_CHANGE[@]} -eq 0 ] || [ $CHECK -eq 0 ]; then
-    exit 0
-else
+# Exit with code determined by whether changes were needed in a check.
+if [ ${FAILED_CHECK} -ne 0 ]; then
     exit 1
+else
+    exit 0
 fi
