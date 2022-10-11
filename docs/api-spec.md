@@ -11,7 +11,7 @@ The following is the format for the `curl` request. In the API definition functi
 the section has the type `List[str]`. Users can request one or multiple sections from the API.
 
 ```
-curl -X POST  "<base-url>/sec-filings/v0.0.1/sections" \
+curl -X POST  "<base-url>/sec-filings/v0.1.0/sections" \
 	-H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
 	-F 'section=risk factors' \
