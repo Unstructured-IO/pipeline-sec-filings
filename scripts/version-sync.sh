@@ -17,7 +17,8 @@ function getopts-extra () {
     # if the next argument is not an option, then append it to array OPTARG
     while [[ ${OPTIND} -le $# && ${!OPTIND:0:1} != '-' ]]; do
         OPTARG[i]=${!OPTIND}
-        let i++ OPTIND++
+        i+=1
+        OPTIND+=1
     done
 }
 
@@ -119,7 +120,7 @@ for i in "${!FILES_TO_CHECK[@]}"; do
         printf "Error: No semver version found in file %s.\n" "$FILE_TO_CHANGE"
         exit 1
     else
-        FILES_TO_CHANGE+=($FILE_TO_CHANGE)
+        FILES_TO_CHANGE+=("$FILE_TO_CHANGE")
         # Replace semver in VERSIONFILE with semver obtained from SOURCE_FILE
         TMPFILE=$(mktemp /tmp/new_version.XXXXXX)
         sed -E -r "s/$RE_SEMVER/$UPDATED_VERSION/" "$FILE_TO_CHANGE" > "$TMPFILE"
@@ -128,7 +129,7 @@ for i in "${!FILES_TO_CHECK[@]}"; do
             DIFF=$(diff "$FILE_TO_CHANGE"  "$TMPFILE" )
             if [ -z "$DIFF" ];
             then
-                printf "version sync would make no changes to $FILE_TO_CHANGE.\n"
+                printf "version sync would make no changes to %s.\n" "$FILE_TO_CHANGE"
                 rm "$TMPFILE"
             else
                 printf "version sync would make the following changes to %s:\n%s\n" "$FILE_TO_CHANGE" "$DIFF"
