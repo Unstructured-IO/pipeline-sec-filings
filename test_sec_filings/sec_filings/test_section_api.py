@@ -147,6 +147,6 @@ def test_section_narrative_api_with_custom_regex_with_special_chars(form_type, t
 
 def test_section_narrative_api_healt_check():
     client = TestClient(app)
-    response = client.get("./healthcheck")
+    response = client.get("/healthcheck")
 
     assert response.status_code == 200
