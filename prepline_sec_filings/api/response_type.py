@@ -22,7 +22,7 @@ RATE_LIMIT = os.environ.get("PIPELINE_API_RATE_LIMIT", "1/second")
 
 
 def is_expected_response_type(media_type, response_type):
-    if media_type == "application/json" and response_type != dict:
+    if media_type == "application/json" and response_type not in [dict, list]:
         return True
     elif media_type == "text/csv" and response_type != str:
         return True
@@ -31,9 +31,9 @@ def is_expected_response_type(media_type, response_type):
 
 
 # pipeline-api
-def pipeline_api(text, response_type="text/csv", m_section=[], m_section_regex=[]):
+def pipeline_api(text, response_type="application/json", m_section=[], m_section_regex=[]):
     if response_type == "application/json":
-        return {"text": "hello world"}
+        return [{"text": "hello world"}]
     elif response_type == "text/csv":
         # comment this out to test conflict response type
         # return {"text" : "hello world"}
@@ -53,7 +53,7 @@ async def pipeline_1(
 ):
 
     media_type = request.headers.get("Accept")
-    default_response_type = "text/csv"
+    default_response_type = "application/json"
     media_type = default_response_type if media_type == "*/*" else media_type
 
     text = file.file.read().decode("utf-8")
