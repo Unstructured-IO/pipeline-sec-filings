@@ -166,7 +166,7 @@ def test_section_narrative_api_with_wrong_media_type(form_type, section, tmpdir)
         headers={"accept": "wrong/media_type"},
     )
 
-    assert response.status_code == 415
+    assert response.status_code == 406
 
 
 @pytest.mark.parametrize(
@@ -190,7 +190,7 @@ def test_section_narrative_api_with_confict_media_type(form_type, section, tmpdi
         headers={"accept": "text/csv"},
     )
 
-    assert response.status_code == 409
+    assert response.status_code == 406
 
 
 def test_section_narrative_api_healt_check():

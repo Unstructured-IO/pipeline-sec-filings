@@ -8,7 +8,6 @@ import inspect
 from typing import List
 
 from fastapi import status, FastAPI, File, Form, Request, UploadFile
-from fastapi.responses import PlainTextResponse
 from slowapi.errors import RateLimitExceeded
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -19,16 +18,6 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 RATE_LIMIT = os.environ.get("PIPELINE_API_RATE_LIMIT", "1/second")
-
-
-def _is_confict_response_type(media_type, response_type):
-    if media_type == "application/json" and response_type != dict:
-        return True
-    elif media_type == "text/csv" and response_type != str:
-        return True
-    else:
-        return False
-
 
 # pipeline-api
 from prepline_sec_filings.sections import (
@@ -134,8 +123,6 @@ async def pipeline_1(
     section_regex: List[str] = Form(default=[]),
 ):
 
-    media_type = request.headers.get("accept")
-
     text = file.file.read().decode("utf-8")
 
     response = pipeline_api(
@@ -144,19 +131,7 @@ async def pipeline_1(
         section_regex,
     )
 
-    if _is_confict_response_type(media_type, type(response)):
-        return PlainTextResponse(
-            content=f"Conflict in media type {media_type} with response type {type(response)}.\n",
-            status_code=status.HTTP_409_CONFLICT,
-        )
-    valid_response_types = ["application/json", "text/csv", "*/*"]
-    if media_type in valid_response_types:
-        return response
-    else:
-        return PlainTextResponse(
-            content=f"Unsupported media type {media_type}.\n",
-            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-        )
+    return response
 
 
 @app.get("/healthcheck", status_code=status.HTTP_200_OK)
