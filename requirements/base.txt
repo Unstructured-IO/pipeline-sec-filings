@@ -168,7 +168,7 @@ typing-extensions==4.3.0
     #   starlette
 unstructured==0.2.0
     # via -r requirements/base.in
-unstructured-api-tools==0.2.0
+unstructured-api-tools==0.3.0
     # via -r requirements/base.in
 urllib3==1.26.12
     # via requests
