@@ -162,15 +162,16 @@ check-tests:
 ## check-scripts:               run shellcheck
 .PHONY: check-scripts
 check-scripts:
-    # Fail if any of these files have warnings
+# Fail if any of these files have warnings
 	scripts/shellcheck.sh
 
-## check-version:           run check to ensure version in CHANGELOG.md matches references in files
+## check-version:               run check to ensure version in CHANGELOG.md matches references in files
 .PHONY: check-version
 check-version:
-    # Fail if syncing version would produce changes
+# Fail if syncing version would produce changes
 	scripts/version-sync.sh -c \
-	    -f README.md api-release \
+		-s CHANGELOG.md \
+		-f README.md api-release \
 		-f preprocessing-pipeline-family.yaml release \
 		-f docs/api-spec.md api-release \
 		-f exploration-notebooks/exploration-10q-amended.ipynb api-release
@@ -191,11 +192,12 @@ tidy:
 tidy-notebooks:
 	scripts/check-and-format-notebooks.py
 
-## version-sync:            update references to version with most recent version from CHANGELOG.md
+## version-sync:                update references to version with most recent version from CHANGELOG.md
 .PHONY: version-sync
 version-sync:
 	scripts/version-sync.sh \
-	    -f README.md api-release \
+		-s CHANGELOG.md \
+		-f README.md api-release \
 		-f preprocessing-pipeline-family.yaml release \
 		-f docs/api-spec.md api-release \
 		-f exploration-notebooks/exploration-10q-amended.ipynb api-release
