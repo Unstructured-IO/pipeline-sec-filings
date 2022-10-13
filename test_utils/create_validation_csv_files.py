@@ -14,23 +14,34 @@ import pandas as pd
 from prepline_sec_filings.fetch import archive_url
 from prepline_sec_filings.sections import SECTIONS_10K, SECTIONS_10Q, SECTIONS_S1, SECSection
 from prepline_sec_filings.sec_document import SECDocument
-from unstructured_api_tools.pipelines.api_conventions import PipelineConfig
+from unstructured_api_tools.pipelines.api_conventions import get_pipeline_path
 
-
-config = PipelineConfig(os.path.join("..", "preprocessing-pipeline-family.yaml"))
 
 SEC_DOCS_DIR = os.environ.get("SEC_DOCS_DIR")
 CSV_FILES_DIR = os.environ.get("CSV_FILES_DIR")
-FILINGS_MANIFEST_JSON = os.environ.get("FILINGS_MANIFEST_JSON",
-                                       os.path.join(SEC_DOCS_DIR, "sec_docs_manifest.json"))
-PIPELINE_SECTION_API_URL = os.environ.get("PIPELINE_SECTION_API_URL",
-                                          f"http://127.0.0.1:8000/sec-filings/v{config['version']}/section")
+FILINGS_MANIFEST_JSON = os.environ.get(
+    "FILINGS_MANIFEST_JSON", os.path.join(SEC_DOCS_DIR, "sec_docs_manifest.json")
+)
+PIPELINE_SECTION_API_URL = os.environ.get(
+    "PIPELINE_SECTION_API_URL", f"http://127.0.0.1:8000{get_pipeline_path('section')}"
+)
+
 
 def _fetch_response_from_api_curl(sec_doc_filename):
     time.sleep(1)
-    command = ["curl", "-s", f"{PIPELINE_SECTION_API_URL}", "-H", "Accept: application/json",
-        "-H", "Content-Type: multipart/form-data",
-               "-F", f"file=@{sec_doc_filename}", "-F", "section=_ALL"]
+    command = [
+        "curl",
+        "-s",
+        f"{PIPELINE_SECTION_API_URL}",
+        "-H",
+        "Accept: application/json",
+        "-H",
+        "Content-Type: multipart/form-data",
+        "-F",
+        f"file=@{sec_doc_filename}",
+        "-F",
+        "section=_ALL",
+    ]
     proc = subprocess.run(command, capture_output=True)
 
     resp_data = {}
@@ -66,13 +77,20 @@ def _bookkeeping_info(keys, values, ticker_or_cik, cik, acc_num):
 
 
 def _csv_filename(ticker_or_cik, form_type, cik, acc_num):
-    return os.path.join(CSV_FILES_DIR, f"{ticker_or_cik}-{form_type}-{cik}-{acc_num}.csv".replace("/",""))
+    return os.path.join(
+        CSV_FILES_DIR, f"{ticker_or_cik}-{form_type}-{cik}-{acc_num}.csv".replace("/", "")
+    )
 
 
 def _write_csv(keys, values, ticker_or_cik, form_type, cik, acc_num):
-    df = pd.DataFrame({"key": pd.Series(keys),
-                       "value": pd.Series(values)})
-    df.to_csv(_csv_filename(ticker_or_cik, form_type, cik, acc_num), sep='\t', encoding='utf-8', index=False)
+    df = pd.DataFrame({"key": pd.Series(keys), "value": pd.Series(values)})
+    df.to_csv(
+        _csv_filename(ticker_or_cik, form_type, cik, acc_num),
+        sep="\t",
+        encoding="utf-8",
+        index=False,
+    )
+
 
 def gen_csv(sec_doc_filename, ticker_or_cik, form_type, cik, acc_num):
     keys = []
@@ -110,21 +128,22 @@ def _gen_csv_no_api(filing_file_handle, ticker_or_cik, form_type, cik, acc_num):
         values.append(result)
     _write_csv(keys, values, ticker_or_cik, form_type, cik, acc_num)
 
+
 def gen_csvs(manifest_json_obj):
     """create CSVs given a manifest_json_obj which looks like:
-          {
-        "mmm": {
-          "cik": "66740",
-          "forms": {
-            "10-Q": "000006674022000065"
-          }
-        },
-        "0001156784": {
-          "forms": {
-            "S-1/A": "000149315222026129"
-          },
-          "cik": "0001156784"
-        },
+      {
+    "mmm": {
+      "cik": "66740",
+      "forms": {
+        "10-Q": "000006674022000065"
+      }
+    },
+    "0001156784": {
+      "forms": {
+        "S-1/A": "000149315222026129"
+      },
+      "cik": "0001156784"
+    },
     """
     Path(CSV_FILES_DIR).mkdir(exist_ok=True)
 
@@ -141,9 +160,8 @@ def gen_csvs(manifest_json_obj):
             print(f"{ticker_or_cik}", flush=True)
             gen_csv(sec_doc_filename, ticker_or_cik, form_type, cik, acc_num)
 
+
 if __name__ == "__main__":
     if SEC_DOCS_DIR is None or CSV_FILES_DIR is None:
-        raise RuntimeError(
-            "Environment vaiables SEC_DOCS_DIR and CSV_FILES_DIR must be set."
-        )
+        raise RuntimeError("Environment vaiables SEC_DOCS_DIR and CSV_FILES_DIR must be set.")
     gen_csvs(parse_manifest_json())
