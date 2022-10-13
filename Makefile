@@ -158,6 +158,8 @@ check-src:
 check-tests:
 	black --line-length 100 test_${PIPELINE_PACKAGE} --check
 	flake8 test_${PIPELINE_PACKAGE}
+	black --line-length 100 test_${PIPELINE_PACKAGE}_integration --check
+	flake8 test_${PIPELINE_PACKAGE}_integration
 	black --line-length 100 test_real_docs --check
 	flake8 test_real_docs
 	black --line-length 100 test_utils --check
