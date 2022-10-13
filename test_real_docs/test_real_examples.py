@@ -45,15 +45,17 @@ def doc_elements(ticker, docs_all):
 def xfail(ticker, section, first_or_last):
     if ticker in RISK_FACTOR_XFAILS:
         return True
-    elif (
-        ticker == "bc" and section == SECSection.USE_OF_PROCEEDS
-    ):
+    elif ticker == "cl" and section in [
+        SECSection.MANAGEMENT_DISCUSSION,
+        SECSection.MARKET_RISK_DISCLOSURES,
+    ]:
+        return True
+    elif ticker == "bc" and section == SECSection.USE_OF_PROCEEDS:
         return True
     elif ticker == "doc" and section == SECSection.OTHER_INFORMATION:
         return True
     elif (
-        ticker == "cvs" and section == SECSection.PRINCIPAL_STOCKHOLDERS
-        and first_or_last == "last"
+        ticker == "cvs" and section == SECSection.PRINCIPAL_STOCKHOLDERS and first_or_last == "last"
     ):
         return True
     # TODO(yuming): The issue of this xfail is the same as the one in core-241
@@ -178,9 +180,7 @@ def check_first_list_item_section(section, expected_count, expected_content):
 @pytest.mark.parametrize("ticker, expected_count, expected_content", list_item_test_values())
 def test_list_items(ticker, expected_count, expected_content):
     if ticker in RISK_FACTOR_XFAILS:
-        pytest.xfail(
-            reason="xfail for risk factor section. therefore can't count list items"
-        )
+        pytest.xfail(reason="xfail for risk factor section. therefore can't count list items")
     text = get_file_from_ticker(ticker)
     doc = SECDocument.from_string(text)
     risk_section = doc.get_section_narrative(SECSection.RISK_FACTORS)
