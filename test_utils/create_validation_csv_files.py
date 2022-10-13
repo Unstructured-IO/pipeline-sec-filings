@@ -2,17 +2,15 @@
 a CSV with all extracted sections, one row per section."""
 import json
 import os
-import requests
 import subprocess
 from pathlib import Path
-from requests_toolbelt.utils import dump
 import time
 
 import pandas as pd
 
 
 from prepline_sec_filings.fetch import archive_url
-from prepline_sec_filings.sections import SECTIONS_10K, SECTIONS_10Q, SECTIONS_S1, SECSection
+from prepline_sec_filings.sections import SECTIONS_10K, SECTIONS_10Q, SECTIONS_S1
 from prepline_sec_filings.sec_document import SECDocument
 from unstructured_api_tools.pipelines.api_conventions import get_pipeline_path
 

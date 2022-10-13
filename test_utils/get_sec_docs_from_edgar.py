@@ -9,7 +9,11 @@ import re
 from pathlib import Path
 
 
-from prepline_sec_filings.fetch import get_filing, get_recent_acc_by_cik, get_recent_cik_and_acc_by_ticker
+from prepline_sec_filings.fetch import (
+    get_filing,
+    get_recent_acc_by_cik,
+    get_recent_cik_and_acc_by_ticker,
+)
 
 
 SEC_DOCS_DIR = os.environ.get("SEC_DOCS_DIR", "sample-sec-docs")
@@ -20,9 +24,7 @@ FILINGS_MANIFEST_JSON = os.path.join("test_utils", "examples.json")
 FILINGS_MANIFEST_FILE = os.environ.get("FILINGS_MANIFEST_FILE")
 
 
-def fetch_filing_xbrl(
-    ticker, form_type, cik, accession_number, skip_fetch_if_file_exists=True
-):
+def fetch_filing_xbrl(ticker, form_type, cik, accession_number, skip_fetch_if_file_exists=True):
     "Fetch a single filing from edgar and write it to $SEC_DOCS_DIR"
     _doc_name = f"{ticker}-{form_type}-{cik}-{accession_number}.xbrl".replace("/", "")
     sec_doc_filename = os.path.join(SEC_DOCS_DIR, _doc_name)
@@ -95,7 +97,7 @@ def get_latest_docs():
         ticker_or_cik = ticker_or_cik.lower()
         _form_type = _form_type.upper()  # just following the convention :)
         print(f"{ticker_or_cik}-{_form_type}...", end="", flush=True)
-        if re.search(r'^\d+$', ticker_or_cik):
+        if re.search(r"^\d+$", ticker_or_cik):
             cik = ticker_or_cik
             acc_num, form_type = get_recent_acc_by_cik(cik, _form_type)
         else:
