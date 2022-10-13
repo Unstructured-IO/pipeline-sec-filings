@@ -43,7 +43,7 @@ def generate_sample_document(form_type):
         ("S-1", "_ALL"),
     ],
 )
-def test_risk_narrative_api(form_type, section, tmpdir):
+def test_section_narrative_api(form_type, section, tmpdir):
     sample_document = generate_sample_document(form_type)
     filename = os.path.join(tmpdir.dirname, "wilderness.xbrl")
     with open(filename, "w") as f:
@@ -81,7 +81,7 @@ def test_risk_narrative_api(form_type, section, tmpdir):
         ("S-1"),
     ],
 )
-def test_risk_narrative_api_with_custom_regex(form_type, tmpdir):
+def test_section_narrative_api_with_custom_regex(form_type, tmpdir):
     sample_document = generate_sample_document(form_type)
     filename = os.path.join(tmpdir.dirname, "wilderness.xbrl")
     with open(filename, "w") as f:
@@ -119,7 +119,7 @@ def test_risk_narrative_api_with_custom_regex(form_type, tmpdir):
         ("S-1"),
     ],
 )
-def test_risk_narrative_api_with_custom_regex_with_special_chars(form_type, tmpdir):
+def test_section_narrative_api_with_custom_regex_with_special_chars(form_type, tmpdir):
     sample_document = generate_sample_document(form_type)
     filename = os.path.join(tmpdir.dirname, "wilderness.xbrl")
     with open(filename, "w") as f:
@@ -143,3 +143,10 @@ def test_risk_narrative_api_with_custom_regex_with_special_chars(form_type, tmpd
             "type": "NarrativeText",
         },
     ]
+
+
+def test_section_narrative_api_healt_check():
+    client = TestClient(app)
+    response = client.get("/healthcheck")
+
+    assert response.status_code == 200

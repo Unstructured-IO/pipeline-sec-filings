@@ -94,6 +94,12 @@ SECTIONS_10K = (
 # NOTE(robinson) - Sections are listed in the following document from SEC
 # ref: https://www.sec.gov/files/form10-q.pdf
 SECTIONS_10Q = (
+    # Part I - Financial information
+    SECSection.FINANCIAL_STATEMENTS,  # ITEM 1
+    SECSection.MANAGEMENT_DISCUSSION,  # ITEM 2
+    SECSection.MARKET_RISK_DISCLOSURES,  # ITEM 3
+    SECSection.CONTROLS_AND_PROCEDURES,  # ITEM 4
+    # Part II - Other information
     SECSection.LEGAL_PROCEEDINGS,  # ITEM 1
     SECSection.RISK_FACTORS,  # ITEM 1A
     SECSection.USE_OF_PROCEEDS,  # ITEM 2

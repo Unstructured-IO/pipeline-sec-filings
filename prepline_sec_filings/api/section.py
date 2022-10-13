@@ -124,6 +124,7 @@ async def pipeline_1(
 ):
 
     text = file.file.read().decode("utf-8")
+
     response = pipeline_api(
         text,
         section,
