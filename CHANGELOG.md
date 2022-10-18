@@ -1,4 +1,4 @@
-## 0.1.0-dev
+## 0.1.0
 
 * Updated FastAPI param m_section -> section
 * API updated to support known filing sections rather just risk factors

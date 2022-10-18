@@ -19,7 +19,7 @@ FILINGS_MANIFEST_JSON = os.environ.get(
     "FILINGS_MANIFEST_JSON", os.path.join(SEC_DOCS_DIR, "sec_docs_manifest.json")
 )
 PIPELINE_SECTION_API_URL = os.environ.get(
-    "PIPELINE_SECTION_API_URL", "http://127.0.0.1:8000/sec-filings/v0.0.1/section"
+    "PIPELINE_SECTION_API_URL", "http://127.0.0.1:8000/sec-filings/v0.1.0/section"
 )
 
 
