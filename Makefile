@@ -205,5 +205,4 @@ version-sync:
 		-s CHANGELOG.md \
 		-f README.md api-release \
 		-f preprocessing-pipeline-family.yaml release \
-		-f docs/api-spec.md api-release \
 		-f exploration-notebooks/exploration-10q-amended.ipynb api-release
