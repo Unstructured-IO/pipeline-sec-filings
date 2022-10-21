@@ -67,8 +67,8 @@ RE_RELEASE="(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
 RE_API_RELEASE="v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
 # Pull out semver appearing earliest in SOURCE_FILE.
 LAST_VERSION=$(grep -o -m 1 -E "${RE_SEMVER_FULL}" "$SOURCE_FILE")
-LAST_RELEASE=$(grep -o -m 1 -E "${RE_RELEASE}" "$SOURCE_FILE")
-LAST_API_RELEASE="v$(grep -o -m 1 -E "${RE_RELEASE}" "$SOURCE_FILE")"
+LAST_RELEASE=$(grep -o -m 1 -E "${RE_RELEASE}($|[^-+])" "$SOURCE_FILE" | grep -o -m 1 -E "${RE_RELEASE}")
+LAST_API_RELEASE="v$(grep -o -m 1 -E "${RE_RELEASE}($|[^-+])$" "$SOURCE_FILE" | grep -o -m 1 -E "${RE_RELEASE}")"
 declare -a RE_SEMVERS=()
 declare -a UPDATED_VERSIONS=()
 for i in "${!REPLACEMENT_FORMATS[@]}"; do
