@@ -12,6 +12,8 @@ import pandas as pd
 from prepline_sec_filings.fetch import archive_url
 from prepline_sec_filings.sections import SECTIONS_10K, SECTIONS_10Q, SECTIONS_S1
 from prepline_sec_filings.sec_document import SECDocument
+from unstructured_api_tools.pipelines.api_conventions import get_pipeline_path
+
 
 SEC_DOCS_DIR = os.environ.get("SEC_DOCS_DIR")
 CSV_FILES_DIR = os.environ.get("CSV_FILES_DIR")
@@ -19,7 +21,7 @@ FILINGS_MANIFEST_JSON = os.environ.get(
     "FILINGS_MANIFEST_JSON", os.path.join(SEC_DOCS_DIR, "sec_docs_manifest.json")
 )
 PIPELINE_SECTION_API_URL = os.environ.get(
-    "PIPELINE_SECTION_API_URL", "http://127.0.0.1:8000/sec-filings/v0.0.1/section"
+    "PIPELINE_SECTION_API_URL", f"http://127.0.0.1:8000{get_pipeline_path('section')}"
 )
 
 
