@@ -4,13 +4,13 @@
 #####################################################################
 
 import os
-import inspect
-from typing import List
+from typing import List, Union
 
 from fastapi import status, FastAPI, File, Form, Request, UploadFile
 from slowapi.errors import RateLimitExceeded
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
+from fastapi.responses import PlainTextResponse
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
@@ -114,27 +114,130 @@ def pipeline_api(text, m_section=[], m_section_regex=[]):
     }
 
 
-@app.post("/sec-filings/v0.1.0/section")
+import json
+from fastapi.responses import StreamingResponse
+from starlette.types import Send
+from base64 import b64encode
+from typing import Optional, Mapping, Iterator, Tuple
+import secrets
+
+
+class MultipartMixedResponse(StreamingResponse):
+    CRLF = b"\r\n"
+
+    def __init__(self, *args, content_type: str = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.content_type = content_type
+
+    def init_headers(self, headers: Optional[Mapping[str, str]] = None) -> None:
+        super().init_headers(headers)
+        self.boundary_value = secrets.token_hex(16)
+        content_type = f'multipart/mixed; boundary="{self.boundary_value}"'
+        self.raw_headers.append((b"content-type", content_type.encode("latin-1")))
+
+    @property
+    def boundary(self):
+        return b"--" + self.boundary_value.encode()
+
+    def _build_part_headers(self, headers: dict) -> bytes:
+        header_bytes = b""
+        for header, value in headers.items():
+            header_bytes += f"{header}: {value}".encode() + self.CRLF
+        return header_bytes
+
+    def build_part(self, chunk: bytes) -> bytes:
+        part = self.boundary + self.CRLF
+        part_headers = {
+            "Content-Length": len(chunk),
+            "Content-Transfer-Encoding": "base64",
+        }
+        if self.content_type is not None:
+            part_headers["Content-Type"] = self.content_type
+        part += self._build_part_headers(part_headers)
+        part += self.CRLF + chunk + self.CRLF
+        return part
+
+    async def stream_response(self, send: Send) -> None:
+        await send(
+            {
+                "type": "http.response.start",
+                "status": self.status_code,
+                "headers": self.raw_headers,
+            }
+        )
+        async for chunk in self.body_iterator:
+            if not isinstance(chunk, bytes):
+                chunk = chunk.encode(self.charset)
+                chunk = b64encode(chunk)
+            await send(
+                {
+                    "type": "http.response.body",
+                    "body": self.build_part(chunk),
+                    "more_body": True,
+                }
+            )
+
+        await send({"type": "http.response.body", "body": b"", "more_body": False})
+
+
+@app.post("/sec-filings/v0.1.1/section")
 @limiter.limit(RATE_LIMIT)
 async def pipeline_1(
     request: Request,
-    file: UploadFile = File(),
+    text_files: Union[List[UploadFile], None] = File(default=None),
     section: List[str] = Form(default=[]),
     section_regex: List[str] = Form(default=[]),
 ):
+    content_type = request.headers.get("Accept")
 
-    text = file.file.read().decode("utf-8")
+    if isinstance(text_files, list) and len(text_files):
+        if len(text_files) > 1:
+            if content_type and (
+                content_type != "*/*" and content_type != "multipart/mixed"
+            ):
+                return PlainTextResponse(
+                    content=(
+                        f"Conflict in media type {content_type}"
+                        ' with response type "multipart/mixed".\n'
+                    ),
+                    status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                )
 
-    response = pipeline_api(
-        text,
-        section,
-        section_regex,
-    )
+            def response_generator():
+                for file in text_files:
+                    text = file.file.read().decode("utf-8")
 
-    return response
+                    response = pipeline_api(
+                        text,
+                        section,
+                        section_regex,
+                    )
+
+                    if type(response) not in [str, bytes]:
+                        response = json.dumps(response)
+                    yield response
+
+            return MultipartMixedResponse(response_generator())
+
+        else:
+            text_file = text_files[0]
+            text = text_file.file.read().decode("utf-8")
+
+            response = pipeline_api(
+                text,
+                section,
+                section_regex,
+            )
+
+            return response
+
+    else:
+        return PlainTextResponse(
+            content='Request parameter "text_files" is required.\n',
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 @app.get("/healthcheck", status_code=status.HTTP_200_OK)
-@limiter.limit(RATE_LIMIT)
 async def healthcheck(request: Request):
     return {"healthcheck": "HEALTHCHECK STATUS: EVERYTHING OK!"}
