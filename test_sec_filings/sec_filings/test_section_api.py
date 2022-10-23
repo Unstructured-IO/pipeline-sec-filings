@@ -54,7 +54,7 @@ def test_section_narrative_api(form_type, section, tmpdir):
     client = TestClient(app)
     response = client.post(
         SECTION_ROUTE,
-        files={"file": (filename, open(filename, "rb"), "text/plain")},
+        files=[("text_files", (filename, open(filename, "rb"), "text/plain"))],
         data={"section": [section]},
     )
 
@@ -92,7 +92,7 @@ def test_section_narrative_api_with_custom_regex(form_type, tmpdir):
     client = TestClient(app)
     response = client.post(
         SECTION_ROUTE,
-        files={"file": (filename, open(filename, "rb"), "text/plain")},
+        files=[("text_files", (filename, open(filename, "rb"), "text/plain"))],
         data={"section_regex": ["risk factors"]},
     )
 
@@ -130,7 +130,7 @@ def test_section_narrative_api_with_custom_regex_with_special_chars(form_type, t
     client = TestClient(app)
     response = client.post(
         SECTION_ROUTE,
-        files={"file": (filename, open(filename, "rb"), "text/plain")},
+        files=[("text_files", (filename, open(filename, "rb"), "text/plain"))],
         data={"section_regex": ["^(?:prospectus )?summary$"]},
     )
 
@@ -145,7 +145,85 @@ def test_section_narrative_api_with_custom_regex_with_special_chars(form_type, t
     ]
 
 
-def test_section_narrative_api_healt_check():
+@pytest.mark.parametrize(
+    "form_types, section",
+    [
+        (["10-K", "10-Q"], "RISK_FACTORS"),
+        (["10-K", "10-Q"], "_ALL"),
+    ],
+)
+def test_section_narrative_api_with_multiple_uploads(form_types, section, tmpdir):
+    filenames = []
+    for idx, form_type in enumerate(form_types):
+        sample_document = generate_sample_document(form_type)
+        filename = os.path.join(tmpdir.dirname, f"wilderness_{idx}.xbrl")
+        with open(filename, "w") as f:
+            f.write(sample_document)
+        filenames.append(filename)
+
+    # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
+    app.state.limiter.reset()
+    client = TestClient(app)
+    files = [("text_files", (filename, open(filename, "rb"), "text/plain")) for filename in filenames]
+    response = client.post(
+        SECTION_ROUTE,
+        files=files,
+        data={"section": [section]},
+    )
+
+    assert response.status_code == 200
+
+    if len(filenames) > 1:
+        assert 'multipart/mixed' in response.headers['content-type']
+    else:
+        response_dict = response.json()
+
+        assert response_dict["RISK_FACTORS"] == [
+            {
+                "text": "The business could be attacked by wolverines.",
+                "type": "NarrativeText",
+            },
+            {
+                "text": "The business could be attacked by bears.",
+                "type": "NarrativeText",
+            },
+        ]
+
+
+@pytest.mark.parametrize(
+    "form_types, section, accept_header, response_status",
+    [
+        (["10-K", "10-Q"], "RISK_FACTORS", "multipart/mixed", 200),
+        (["10-K", "10-Q"], "_ALL", "application/json", 406),
+        ([], "_ALL", "application/json", 400),
+    ],
+)
+def test_section_narrative_api_with_headers(form_types, section, accept_header, response_status, tmpdir):
+    filenames = []
+    for idx, form_type in enumerate(form_types):
+        sample_document = generate_sample_document(form_type)
+        filename = os.path.join(tmpdir.dirname, f"wilderness_{idx}.xbrl")
+        with open(filename, "w") as f:
+            f.write(sample_document)
+        filenames.append(filename)
+
+    # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
+    app.state.limiter.reset()
+    client = TestClient(app)
+    files = [("text_files", (filename, open(filename, "rb"), "text/plain")) for filename in filenames]
+    response = client.post(
+        SECTION_ROUTE,
+        files=files,
+        headers={
+            "Accept": accept_header
+        },
+        data={"section": [section]},
+    )
+
+    assert response.status_code == response_status
+
+
+def test_section_narrative_api_health_check():
     client = TestClient(app)
     response = client.get("/healthcheck")
 
