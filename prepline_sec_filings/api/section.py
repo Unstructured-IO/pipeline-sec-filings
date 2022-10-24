@@ -4,7 +4,6 @@
 #####################################################################
 
 import os
-import inspect
 from typing import List
 
 from fastapi import status, FastAPI, File, Form, Request, UploadFile
@@ -135,6 +134,5 @@ async def pipeline_1(
 
 
 @app.get("/healthcheck", status_code=status.HTTP_200_OK)
-@limiter.limit(RATE_LIMIT)
 async def healthcheck(request: Request):
     return {"healthcheck": "HEALTHCHECK STATUS: EVERYTHING OK!"}
