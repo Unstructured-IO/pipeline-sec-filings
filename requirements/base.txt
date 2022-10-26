@@ -158,9 +158,9 @@ types-urllib3==1.26.24
     # via types-requests
 typing-extensions==4.3.0
     # via pydantic
-unstructured==0.2.0
+unstructured==0.2.1
     # via -r base.in
-unstructured-api-tools==0.3.0
+unstructured-api-tools==0.3.1
     # via -r base.in
 urllib3==1.26.12
     # via requests
