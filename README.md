@@ -44,7 +44,7 @@ curl -X 'POST' \
   'https://api.unstructured.io/sec-filings/v0.1.1/section' \
   -H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
-  -F '-text_files=@rgld-10-K-85535-000155837021011343.xbrl' \
+  -F 'text_files=@rgld-10-K-85535-000155837021011343.xbrl' \
   -F section=RISK_FACTORS | jq -C . | less -R
 ```
 
