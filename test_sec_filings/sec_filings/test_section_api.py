@@ -164,7 +164,9 @@ def test_section_narrative_api_with_multiple_uploads(form_types, section, tmpdir
     # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
     app.state.limiter.reset()
     client = TestClient(app)
-    files = [("text_files", (filename, open(filename, "rb"), "text/plain")) for filename in filenames]
+    files = [
+        ("text_files", (filename, open(filename, "rb"), "text/plain")) for filename in filenames
+    ]
     response = client.post(
         SECTION_ROUTE,
         files=files,
@@ -174,7 +176,7 @@ def test_section_narrative_api_with_multiple_uploads(form_types, section, tmpdir
     assert response.status_code == 200
 
     if len(filenames) > 1:
-        assert 'multipart/mixed' in response.headers['content-type']
+        assert "multipart/mixed" in response.headers["content-type"]
     else:
         response_dict = response.json()
 
@@ -198,7 +200,9 @@ def test_section_narrative_api_with_multiple_uploads(form_types, section, tmpdir
         ([], "_ALL", "application/json", 400),
     ],
 )
-def test_section_narrative_api_with_headers(form_types, section, accept_header, response_status, tmpdir):
+def test_section_narrative_api_with_headers(
+    form_types, section, accept_header, response_status, tmpdir
+):
     filenames = []
     for idx, form_type in enumerate(form_types):
         sample_document = generate_sample_document(form_type)
@@ -210,13 +214,13 @@ def test_section_narrative_api_with_headers(form_types, section, accept_header, 
     # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
     app.state.limiter.reset()
     client = TestClient(app)
-    files = [("text_files", (filename, open(filename, "rb"), "text/plain")) for filename in filenames]
+    files = [
+        ("text_files", (filename, open(filename, "rb"), "text/plain")) for filename in filenames
+    ]
     response = client.post(
         SECTION_ROUTE,
         files=files,
-        headers={
-            "Accept": accept_header
-        },
+        headers={"Accept": accept_header},
         data={"section": [section]},
     )
 
