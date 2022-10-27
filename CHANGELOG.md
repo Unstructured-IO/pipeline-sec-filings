@@ -1,3 +1,7 @@
+## 0.2.0
+
+* Updated section API to accept multiple text files uploads as `text_files` parameter.
+
 ## 0.1.0
 
 * Updated FastAPI param m_section -> section
