@@ -44,7 +44,7 @@ curl -X 'POST' \
   'https://api.unstructured.io/sec-filings/v0.2.0/section' \
   -H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
-  -F 'text_files=@rgld-10-K-85535-0001558370.2.01343.xbrl' \
+  -F 'text_files=@rgld-10-K-85535-000155837021011343.xbrl' \
   -F section=RISK_FACTORS | jq -C . | less -R
 ```
 
@@ -88,7 +88,7 @@ curl -X 'POST' \
   'http://localhost:8000/sec-filings/v0.2.0/section' \
   -H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
-  -F 'text_files=@rgld-10-K-85535-0001558370.2.01343.xbrl' \
+  -F 'text_files=@rgld-10-K-85535-000155837021011343.xbrl' \
   -F 'section_regex=risk factors'  | jq -C . | less -R
 ```
 
@@ -124,7 +124,7 @@ You can also use special regex characters in your pattern, as shown in the examp
   'http://localhost:8000/sec-filings/v0.2.0/section' \
   -H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
-  -F 'text_files=@rgld-10-K-85535-0001558370.2.01343.xbrl' \
+  -F 'text_files=@rgld-10-K-85535-000155837021011343.xbrl' \
   -F "section_regex=^(\S+\W?)+$"
 ```
 
