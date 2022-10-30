@@ -180,7 +180,7 @@ class MultipartMixedResponse(StreamingResponse):
         await send({"type": "http.response.body", "body": b"", "more_body": False})
 
 
-@app.post("/sec-filings/v0.2.0/section")
+@app.post("/sec-filings/v0.2.1/section")
 @limiter.limit(RATE_LIMIT)
 async def pipeline_1(
     request: Request,
@@ -192,9 +192,7 @@ async def pipeline_1(
 
     if isinstance(text_files, list) and len(text_files):
         if len(text_files) > 1:
-            if content_type and (
-                content_type != "*/*" and content_type != "multipart/mixed"
-            ):
+            if content_type and content_type not in ["*/*", "multipart/mixed"]:
                 return PlainTextResponse(
                     content=(
                         f"Conflict in media type {content_type}"
@@ -205,28 +203,30 @@ async def pipeline_1(
 
             def response_generator():
                 for file in text_files:
+
                     text = file.file.read().decode("utf-8")
 
                     response = pipeline_api(
                         text,
-                        section,
-                        section_regex,
+                        m_section=section,
+                        m_section_regex=section_regex,
                     )
-
                     if type(response) not in [str, bytes]:
                         response = json.dumps(response)
                     yield response
 
-            return MultipartMixedResponse(response_generator())
-
+            return MultipartMixedResponse(
+                response_generator(),
+            )
         else:
+
             text_file = text_files[0]
             text = text_file.file.read().decode("utf-8")
 
             response = pipeline_api(
                 text,
-                section,
-                section_regex,
+                m_section=section,
+                m_section_regex=section_regex,
             )
 
             return response
