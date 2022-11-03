@@ -4,4 +4,4 @@ jupyter
 mypy
 pip-tools
 # NOTE(crag): consistency with unstructured-api-tools. pinned for a reason, see there.
-ipython==8.1.1
+ipython==8.6.0

@@ -1,10 +1,10 @@
-## 0.2.1
+## 0.2.1-dev
 
-* Re-generate sections API from `unstructured-api-tools==0.4.1`.
+* Re-generate sections API from unstructured-api-tools==0.4.1
 
 ## 0.2.0
 
-* Updated section API to accept multiple text files uploads as `text_files` parameter.
+* Updated section API to accept multiple text files uploads as `text_files` parameter
 
 ## 0.1.0
 
