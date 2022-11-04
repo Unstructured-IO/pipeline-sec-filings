@@ -20,12 +20,12 @@ The API is hosted at `https://api.unstructured.io`.
 	
 	Create a virtualenv to work in and activate it, e.g. for one named `sec-filings`:
 	
-	`pyenv  virtualenv 3.8.13 sec-filings`  
+	`pyenv  virtualenv 3.8.13 sec-filings` <br />
 	`pyenv activate sec-filings`
 
 * Run `make install` 
-* Start a local jupyter notebook server with `make run-jupyter`  
-	**OR**  
+* Start a local jupyter notebook server with `make run-jupyter` <br />
+	**OR** <br />
 	just start the fast-API locally with `make run-web-app` 
 
 
