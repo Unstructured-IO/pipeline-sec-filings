@@ -57,11 +57,6 @@ pip-compile:
 # Build #
 #########
 
-## docker-build:                builds the docker container for the pipeline
-.PHONY: docker-build
-docker-build:
-	BUILD_TYPE="" PIP_VERSION=${PIP_VERSION} PIPELINE_FAMILY=${PIPELINE_FAMILY} ./scripts/docker-build.sh
-
 ## generate-api:                generates the FastAPI python APIs from notebooks
 .PHONY: generate-api
 generate-api:
@@ -69,33 +64,24 @@ generate-api:
 		--input-directory ./pipeline-notebooks \
 		--output-directory ./${PACKAGE_NAME}/api
 
+.PHONY: docker-build
+docker-build:
+	# This is provided for convenience and is not required in a standard development environment
+	PIP_VERSION=${PIP_VERSION} PIPELINE_FAMILY=${PIPELINE_FAMILY} ./scripts/docker-build.sh
+
+
 #########
 # Local #
 ########
 
-## run-notebooks-local:         runs the container as a docker compose file
-.PHONY: run-notebooks-local
-run-notebooks-local:
-	docker-compose -p ${PIPELINE_FAMILY} -f docker/docker-compose-notebook.yaml up
+## run-jupyter:                 starts jupyter notebook
+.PHONY: run-jupyter
+run-jupyter:
+	PYTHONPATH=$(realpath .) JUPYTER_PATH=$(realpath .) jupyter-notebook  --no-browser --NotebookApp.token='\'''\'' --NotebookApp.password='\'''\'''
 
-## stop-notebooks-local:        stops the container
-.PHONY: stop-notebooks-local
-stop-notebooks-local:
-	docker-compose -p ${PIPELINE_FAMILY} stop
-
-## start-app-local:             runs FastAPI in the container with hot reloading
-.PHONY: start-app-local
-start-app-local:
-	docker-compose -p ${PIPELINE_FAMILY}-api -f docker/docker-compose-api.yaml up
-
-## stop-app-local:              stops the container
-.PHONY: stop-app-local
-stop-app-local:
-	docker-compose -p ${PIPELINE_FAMILY}-api stop
-
-## run-app-dev:                 runs the FastAPI api with hot reloading
-.PHONY: run-app-dev
-run-app-dev:
+## run-web-app:                 runs the FastAPI api with hot reloading
+.PHONY: run-web-app
+run-web-app:
 	 PYTHONPATH=. uvicorn ${PACKAGE_NAME}.api.section:app --reload
 
 #################

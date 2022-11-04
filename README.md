@@ -21,16 +21,7 @@ to be run from the base directory of this repo. If you want to run the pipeline 
 directory, ensure the base directory of the repo is added to your Python path. You can do that
 by running `export PYTHONPATH=${PWD}:${PYTHONPATH}` from this directory.
 
-To build the Docker container, run `make docker-build`. After that, there are two
-`docker-compose` files for local usage, one for notebooks and one for the API.
-To run the notebooks with `docker-compose`, use `make run-notebooks-local`.
-You can stop the notebook container with `stop-notebooks-local`. You can view the notebooks
-at `http://127.0.0.1:8888`.
-
-To run the API locally, use `make start-app-local`.
-You can stop the API with `make stop-app-local`.
-If you are an API developer, use `make run-app-dev` instead of `make start-app-local` to
-start the API with hot reloading.
+To run the API locally, use `make run-web-app` to start the API with hot reloading.
 The API will run at `http:/127.0.0.1:5000`.
 You can view the swagger documentation at `http://127.0.0.1/docs`.
 
