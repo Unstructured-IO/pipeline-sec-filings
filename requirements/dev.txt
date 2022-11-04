@@ -4,6 +4,10 @@
 #
 #    pip-compile requirements/dev.in
 #
+appnope==0.1.3
+    # via
+    #   ipykernel
+    #   ipython
 argon2-cffi==21.3.0
     # via notebook
 argon2-cffi-bindings==21.2.0
@@ -17,7 +21,7 @@ backcall==0.2.0
 beautifulsoup4==4.11.1
     # via nbconvert
 black==22.10.0
-    # via -r dev.in
+    # via -r requirements/dev.in
 bleach==5.0.1
     # via nbconvert
 build==0.8.0
@@ -41,7 +45,11 @@ executing==1.0.0
 fastjsonschema==2.16.2
     # via nbformat
 flake8==5.0.4
-    # via -r dev.in
+    # via -r requirements/dev.in
+importlib-metadata==5.0.0
+    # via nbconvert
+importlib-resources==5.10.0
+    # via jsonschema
 ipykernel==6.17.0
     # via
     #   ipywidgets
@@ -51,7 +59,7 @@ ipykernel==6.17.0
     #   qtconsole
 ipython==8.6.0
     # via
-    #   -r dev.in
+    #   -r requirements/dev.in
     #   ipykernel
     #   ipywidgets
     #   jupyter-console
@@ -70,7 +78,7 @@ jinja2==3.1.2
 jsonschema==4.16.0
     # via nbformat
 jupyter==1.0.0
-    # via -r dev.in
+    # via -r requirements/dev.in
 jupyter-client==7.3.5
     # via
     #   ipykernel
@@ -106,7 +114,7 @@ mccabe==0.7.0
 mistune==2.0.4
     # via nbconvert
 mypy==0.982
-    # via -r dev.in
+    # via -r requirements/dev.in
 mypy-extensions==0.4.3
     # via
     #   black
@@ -149,7 +157,9 @@ pexpect==4.8.0
 pickleshare==0.7.5
     # via ipython
 pip-tools==6.9.0
-    # via -r dev.in
+    # via -r requirements/dev.in
+pkgutil-resolve-name==1.3.10
+    # via jsonschema
 platformdirs==2.5.2
     # via black
 prometheus-client==0.14.1
@@ -235,7 +245,9 @@ traitlets==5.4.0
     #   notebook
     #   qtconsole
 typing-extensions==4.3.0
-    # via mypy
+    # via
+    #   black
+    #   mypy
 wcwidth==0.2.5
     # via prompt-toolkit
 webencodings==0.5.1
@@ -246,6 +258,10 @@ wheel==0.37.1
     # via pip-tools
 widgetsnbextension==4.0.3
     # via ipywidgets
+zipp==3.10.0
+    # via
+    #   importlib-metadata
+    #   importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
