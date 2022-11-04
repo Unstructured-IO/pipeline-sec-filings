@@ -160,6 +160,8 @@ traitlets==5.4.0
     #   nbformat
 types-requests==2.28.11
     # via unstructured-api-tools
+types-ujson==5.5.0
+    # via unstructured-api-tools
 types-urllib3==1.26.24
     # via types-requests
 typing-extensions==4.3.0
@@ -168,7 +170,7 @@ typing-extensions==4.3.0
     #   starlette
 unstructured==0.2.1
     # via -r requirements/base.in
-unstructured-api-tools==0.4.0
+unstructured-api-tools==0.4.2
     # via -r requirements/base.in
 urllib3==1.26.12
     # via requests
