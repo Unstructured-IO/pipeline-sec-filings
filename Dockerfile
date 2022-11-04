@@ -22,9 +22,6 @@ RUN groupadd --gid ${NB_UID} ${NB_USER}
 RUN useradd --uid ${NB_UID}  --gid ${NB_UID} ${NB_USER}
 USER ${NB_USER}
 WORKDIR ${HOME}
-RUN mkdir ${HOME}/.ssh && chmod go-rwx ${HOME}/.ssh \
-  &&  ssh-keyscan -t rsa github.com >> /home/${NB_USER}/.ssh/known_hosts
-
 ENV PYTHONPATH="${PYTHONPATH}:${HOME}"
 ENV PATH="/home/${NB_USER}/.local/bin:${PATH}"
 
@@ -34,8 +31,7 @@ COPY prepline_sec_filings prepline_sec_filings
 
 # NOTE(robinson) - Can remove the secret mount once the unstructured repo is public
 # NOTE(crag) - Cannot use an ARG in the dst= path (so it seems), hence no ${NB_USER}, ${NB_UID}
-RUN --mount=type=secret,id=ssh_key,uid=1000,dst=/home/notebook-user/.ssh/id_rsa \
-  python3.8 -m pip install --no-cache -r requirements-base.txt \
+RUN python3.8 -m pip install --no-cache -r requirements-base.txt \
   && python3.8 -m pip install --no-cache -r requirements-dev.txt \
   && python3.8 -c "import nltk; nltk.download('punkt')" \
   && python3.8 -c "import nltk; nltk.download('averaged_perceptron_tagger')"
