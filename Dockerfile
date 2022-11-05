@@ -29,6 +29,9 @@ ENV PATH="/home/${NB_USER}/.local/bin:${PATH}"
 COPY requirements/dev.txt requirements-dev.txt
 COPY requirements/base.txt requirements-base.txt
 COPY prepline_sec_filings prepline_sec_filings
+COPY exploration-notebooks exploration-notebooks
+COPY pipeline-notebooks pipeline-notebooks
+
 
 # NOTE(robinson) - Can remove the secret mount once the unstructured repo is public
 # NOTE(crag) - Cannot use an ARG in the dst= path (so it seems), hence no ${NB_USER}, ${NB_UID}
