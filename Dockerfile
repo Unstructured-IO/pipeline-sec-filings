@@ -12,7 +12,8 @@ RUN yum -y update && \
   yum -y install gcc openssl-devel bzip2-devel libffi-devel make git sqlite-devel && \
   curl -O https://www.python.org/ftp/python/3.8.14/Python-3.8.14.tgz && tar -xzf Python-3.8.14.tgz && \
   cd Python-3.8.14/ && ./configure --enable-optimizations && make altinstall && \
-  cd .. && rm -rf Python-3.8.14*
+  cd .. && rm -rf Python-3.8.14* && \
+  ln -s /usr/local/bin/python3.8 /usr/local/bin/python3
 
 # create user with a home directory
 ENV USER ${NB_USER}
