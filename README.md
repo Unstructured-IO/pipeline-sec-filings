@@ -142,6 +142,13 @@ The python module [section.py](/blob/main/prepline_sec_filings/api/section.py) c
 
 You can generate the FastAPI APIs from all [pipeline-notebooks/](/pipeline-notebooks) by running `make generate-api`.  
 
+## Docker
+
+It is not necessary to run Docker in a local development environment, however a Dockerfile and
+make targets of `docker-build`, 'docker-start-api', and 'docker-start-jupyter' are provided for convenience.
+
+You can also launch a Jupyter instance to try out the notebookes with [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/cragwolfe/pipeline-sec-filings/HEAD).
+
 ## Security Policy
 
 See our [security policy](https://github.com/Unstructured-IO/pipeline-sec-filings/security/policy) for
