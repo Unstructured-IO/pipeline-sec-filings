@@ -35,9 +35,3 @@ RUN python3.8 -m pip install --no-cache -r requirements-base.txt \
   && python3.8 -m pip install --no-cache -r requirements-dev.txt \
   && python3.8 -c "import nltk; nltk.download('punkt')" \
   && python3.8 -c "import nltk; nltk.download('averaged_perceptron_tagger')"
-
-EXPOSE 5000
-
-ENTRYPOINT ["uvicorn", "prepline_sec_filings.api.section:app", \
-  "--host", "0.0.0.0", \
-  "--port", "5000"]
