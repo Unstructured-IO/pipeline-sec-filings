@@ -147,7 +147,7 @@ You can generate the FastAPI APIs from all [pipeline-notebooks/](/pipeline-noteb
 It is not necessary to run Docker in a local development environment, however a Dockerfile and
 make targets of `docker-build`, 'docker-start-api', and 'docker-start-jupyter' are provided for convenience.
 
-You can also launch a Jupyter instance to try out the notebookes with [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/cragwolfe/pipeline-sec-filings/HEAD).
+You can also launch a Jupyter instance to try out the notebookes with [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Unstructured-IO/pipeline-sec-filings/HEAD).
 
 ## Security Policy
 
