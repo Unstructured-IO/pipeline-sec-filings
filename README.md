@@ -1,4 +1,4 @@
-<h3 align="center">
+﻿<h3 align="center">
   <img src="img/unstructured_logo.png" height="200">
 </h3>
 
@@ -7,34 +7,29 @@
 </h3>
 
 
-This repo implements a document pre-processing pipeline for SEC filings. Currently, the pipeline
-covers extracting narrative text from a user-specified section in 10-K, 10-Q, and S-1 filings.
+This repo implements a document pre-processing pipeline for SEC filings. Currently, the pipeline is capable of extracting narrative text from user-specified sections in 10-K, 10-Q, and S-1 filings.
+
 The API is hosted at `https://api.unstructured.io`.
 
-## Getting Started
+## Developer Quick Start
 
-To view the most common `Makefile` targets, run `make`. The `Makefile` targets include several
-options for installing and/or running the pipeline.
+* Using `pyenv` to manage virtualenv's is recommended
+	* Mac install instructions:
+		* `brew install pyenv-virtualenv`
+		* `pyenv install 3.8.13`
+	
+	Create a virtualenv to work in and activate it, e.g. for one named `sec-filings`:
+	
+	`pyenv  virtualenv 3.8.13 sec-filings` <br />
+	`pyenv activate sec-filings`
 
-To install all of the dependencies for the pipeline, run `make install`. The pipeline is intended
-to be run from the base directory of this repo. If you want to run the pipeline from another
-directory, ensure the base directory of the repo is added to your Python path. You can do that
-by running `export PYTHONPATH=${PWD}:${PYTHONPATH}` from this directory.
+* Run `make install` 
+* Start a local jupyter notebook server with `make run-jupyter` <br />
+	**OR** <br />
+	just start the fast-API locally with `make run-web-app` 
 
-To build the Docker container, run `make docker-build`. After that, there are two
-`docker-compose` files for local usage, one for notebooks and one for the API.
-To run the notebooks with `docker-compose`, use `make run-notebooks-local`.
-You can stop the notebook container with `stop-notebooks-local`. You can view the notebooks
-at `http://127.0.0.1:8888`.
 
-To run the API locally, use `make start-app-local`.
-You can stop the API with `make stop-app-local`.
-If you are an API developer, use `make run-app-dev` instead of `make start-app-local` to
-start the API with hot reloading.
-The API will run at `http:/127.0.0.1:5000`.
-You can view the swagger documentation at `http://127.0.0.1/docs`.
-
-#### Extracting Narrative Text from an SEC Filing
+## Extracting Narrative Text from an SEC Filing
 
 To retrieve narrative text section(s) from an iXBRL S-1, 10-K, or 10-Q document (or amended version S-1/A, 10-K/A, or 10-Q/A), post the document to the `/section` API. You can try this out by downloading the sample documents using `make dl-test-artifacts`. Then, from
 the `sample-sec-docs` folder, run:
@@ -143,7 +138,16 @@ and `open_form_by_ticker('mmm', '10-K', your_organization_name, your_email)` ope
 
 ### Generating Python files from the pipeline notebooks
 
-You can generate the FastAPI APIs from your pipeline notebooks by running `make generate-api`.
+The python module [section.py](/blob/main/prepline_sec_filings/api/section.py) contains the FASTApi code needed to serve the API. It's created with `make generate-api`, which derives the API from the notebook [pipeline-section.ipynb](/blob/main/pipeline-notebooks/pipeline-section.ipynb). 
+
+You can generate the FastAPI APIs from all [pipeline-notebooks/](/pipeline-notebooks) by running `make generate-api`.  
+
+## Docker
+
+It is not necessary to run Docker in a local development environment, however a Dockerfile and
+make targets of `docker-build`, `docker-start-api`, and `docker-start-jupyter` are provided for convenience.
+
+You can also launch a Jupyter instance to try out the notebooks with [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Unstructured-IO/pipeline-sec-filings/HEAD).
 
 ## Security Policy
 

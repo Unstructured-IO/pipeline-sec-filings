@@ -57,11 +57,6 @@ pip-compile:
 # Build #
 #########
 
-## docker-build:                builds the docker container for the pipeline
-.PHONY: docker-build
-docker-build:
-	BUILD_TYPE="" PIP_VERSION=${PIP_VERSION} PIPELINE_FAMILY=${PIPELINE_FAMILY} ./scripts/docker-build.sh
-
 ## generate-api:                generates the FastAPI python APIs from notebooks
 .PHONY: generate-api
 generate-api:
@@ -69,34 +64,44 @@ generate-api:
 		--input-directory ./pipeline-notebooks \
 		--output-directory ./${PACKAGE_NAME}/api
 
+
 #########
 # Local #
-########
+#########
 
-## run-notebooks-local:         runs the container as a docker compose file
-.PHONY: run-notebooks-local
-run-notebooks-local:
-	docker-compose -p ${PIPELINE_FAMILY} -f docker/docker-compose-notebook.yaml up
+## run-jupyter:                 starts jupyter notebook
+.PHONY: run-jupyter
+run-jupyter:
+	PYTHONPATH=$(realpath .) JUPYTER_PATH=$(realpath .) jupyter-notebook --NotebookApp.token='' --NotebookApp.password=''
 
-## stop-notebooks-local:        stops the container
-.PHONY: stop-notebooks-local
-stop-notebooks-local:
-	docker-compose -p ${PIPELINE_FAMILY} stop
-
-## start-app-local:             runs FastAPI in the container with hot reloading
-.PHONY: start-app-local
-start-app-local:
-	docker-compose -p ${PIPELINE_FAMILY}-api -f docker/docker-compose-api.yaml up
-
-## stop-app-local:              stops the container
-.PHONY: stop-app-local
-stop-app-local:
-	docker-compose -p ${PIPELINE_FAMILY}-api stop
-
-## run-app-dev:                 runs the FastAPI api with hot reloading
-.PHONY: run-app-dev
-run-app-dev:
+## run-web-app:                 runs the FastAPI api with hot reloading
+.PHONY: run-web-app
+run-web-app:
 	 PYTHONPATH=. uvicorn ${PACKAGE_NAME}.api.section:app --reload
+
+
+##########
+# Docker #
+##########
+
+# Docker targets are provided for convenience only and are not required in a standard development environment
+
+# Note that the image has notebooks baked in, however the current working directory
+# is mounted under /home/notebook-user/local/ when the image is started with
+# docker-start-api or docker-start-jupyter
+
+.PHONY: docker-build
+docker-build:
+	PIP_VERSION=${PIP_VERSION} PIPELINE_FAMILY=${PIPELINE_FAMILY} ./scripts/docker-build.sh
+
+.PHONY: docker-start-api
+docker-start-api:
+	docker run  -p 8000:8000 --mount type=bind,source=$(realpath .),target=/home/notebook-user/local -t --rm pipeline-family-sec-filings-dev:latest uvicorn prepline_sec_filings.api.section:app --host 0.0.0.0 --port 8000
+
+.PHONY: docker-start-jupyter
+docker-start-jupyter:
+	docker run  -p 8888:8888 --mount type=bind,source=$(realpath .),target=/home/notebook-user/local -t --rm pipeline-family-sec-filings-dev:latest jupyter-notebook --port 8888 --ip 0.0.0.0 --no-browser --NotebookApp.token='' --NotebookApp.password=''
+
 
 #################
 # Test and Lint #
