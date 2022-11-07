@@ -72,7 +72,7 @@ generate-api:
 ## run-jupyter:                 starts jupyter notebook
 .PHONY: run-jupyter
 run-jupyter:
-	PYTHONPATH=$(realpath .) JUPYTER_PATH=$(realpath .) jupyter-notebook  --no-browser --NotebookApp.token='' --NotebookApp.password=''
+	PYTHONPATH=$(realpath .) JUPYTER_PATH=$(realpath .) jupyter-notebook --NotebookApp.token='' --NotebookApp.password=''
 
 ## run-web-app:                 runs the FastAPI api with hot reloading
 .PHONY: run-web-app
