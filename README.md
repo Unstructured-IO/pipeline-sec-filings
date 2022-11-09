@@ -19,7 +19,7 @@ The API is hosted at `https://api.unstructured.io`.
 	  * `pyenv install 3.8.13`
   * Linux instructions are available [here](https://github.com/Unstructured-IO/community#linux).
 
-	Create a virtualenv to work in and activate it, e.g. for one named `sec-filings`:
+* Create a virtualenv to work in and activate it, e.g. for one named `sec-filings`:
 
 	`pyenv  virtualenv 3.8.13 sec-filings` <br />
 	`pyenv activate sec-filings`
