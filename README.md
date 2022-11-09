@@ -17,16 +17,19 @@ The API is hosted at `https://api.unstructured.io`.
 	* Mac install instructions:
 		* `brew install pyenv-virtualenv`
 		* `pyenv install 3.8.13`
-	
+    * See [here](https://github.com/Unstructured-IO/community#mac--homebrew) for more detailed
+      instructions.
+  * Linux instructions are available [here](https://github.com/Unstructured-IO/community#linux)
+
 	Create a virtualenv to work in and activate it, e.g. for one named `sec-filings`:
-	
+
 	`pyenv  virtualenv 3.8.13 sec-filings` <br />
 	`pyenv activate sec-filings`
 
-* Run `make install` 
+* Run `make install`
 * Start a local jupyter notebook server with `make run-jupyter` <br />
 	**OR** <br />
-	just start the fast-API locally with `make run-web-app` 
+	just start the fast-API locally with `make run-web-app`
 
 
 ## Extracting Narrative Text from an SEC Filing
@@ -138,9 +141,9 @@ and `open_form_by_ticker('mmm', '10-K', your_organization_name, your_email)` ope
 
 ### Generating Python files from the pipeline notebooks
 
-The python module [section.py](/blob/main/prepline_sec_filings/api/section.py) contains the FASTApi code needed to serve the API. It's created with `make generate-api`, which derives the API from the notebook [pipeline-section.ipynb](/blob/main/pipeline-notebooks/pipeline-section.ipynb). 
+The python module [section.py](/blob/main/prepline_sec_filings/api/section.py) contains the FASTApi code needed to serve the API. It's created with `make generate-api`, which derives the API from the notebook [pipeline-section.ipynb](/blob/main/pipeline-notebooks/pipeline-section.ipynb).
 
-You can generate the FastAPI APIs from all [pipeline-notebooks/](/pipeline-notebooks) by running `make generate-api`.  
+You can generate the FastAPI APIs from all [pipeline-notebooks/](/pipeline-notebooks) by running `make generate-api`.
 
 ## Docker
 
