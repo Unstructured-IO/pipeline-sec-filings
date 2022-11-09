@@ -14,11 +14,9 @@ The API is hosted at `https://api.unstructured.io`.
 ## Developer Quick Start
 
 * Using `pyenv` to manage virtualenv's is recommended
-	* Mac install instructions:
+	* Mac install instructions. See [here](https://github.com/Unstructured-IO/community#mac--homebrew) for more detailed instructions.
 		* `brew install pyenv-virtualenv`
-		* `pyenv install 3.8.13`
-    * See [here](https://github.com/Unstructured-IO/community#mac--homebrew) for more detailed
-      instructions.
+	  * `pyenv install 3.8.13`
   * Linux instructions are available [here](https://github.com/Unstructured-IO/community#linux)
 
 	Create a virtualenv to work in and activate it, e.g. for one named `sec-filings`:
