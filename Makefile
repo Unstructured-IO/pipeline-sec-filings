@@ -157,7 +157,7 @@ check: check-src check-tests check-version
 check-src:
 	black --line-length 100 ${PACKAGE_NAME} --check --exclude ${PACKAGE_NAME}/api
 	flake8 ${PACKAGE_NAME}
-	mypy ${PACKAGE_NAME} --ignore-missing-imports --install-types --non-interactive
+	mypy ${PACKAGE_NAME} --ignore-missing-imports --implicit-optional --install-types --non-interactive
 
 .PHONY: check-tests
 check-tests:
