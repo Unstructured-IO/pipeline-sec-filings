@@ -74,6 +74,10 @@ markupsafe==2.1.1
     #   nbconvert
 mistune==2.0.4
     # via nbconvert
+mypy==0.991
+    # via unstructured-api-tools
+mypy-extensions==0.4.3
+    # via mypy
 nbclient==0.6.8
     # via nbconvert
 nbconvert==7.0.0
@@ -147,6 +151,8 @@ threadpoolctl==3.1.0
     # via scikit-learn
 tinycss2==1.1.1
     # via nbconvert
+tomli==2.0.1
+    # via mypy
 tornado==6.2
     # via jupyter-client
 tqdm==4.64.1
@@ -166,11 +172,12 @@ types-urllib3==1.26.24
     # via types-requests
 typing-extensions==4.3.0
     # via
+    #   mypy
     #   pydantic
     #   starlette
 unstructured==0.2.5
     # via -r requirements/base.in
-unstructured-api-tools==0.4.2
+unstructured-api-tools==0.4.3
     # via -r requirements/base.in
 urllib3==1.26.12
     # via requests
