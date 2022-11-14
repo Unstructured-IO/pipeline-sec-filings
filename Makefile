@@ -200,7 +200,6 @@ tidy:
 	black --line-length 100 test_real_docs
 	black --line-length 100 test_utils
 
-
 ## tidy-notebooks:	             execute notebooks and remove metadata
 .PHONY: tidy-notebooks
 tidy-notebooks:
