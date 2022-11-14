@@ -61,7 +61,7 @@ matplotlib-inline==0.1.6
     #   ipython
 mccabe==0.7.0
     # via flake8
-mypy==0.982
+mypy==0.990
     # via -r test.in
 mypy-extensions==0.4.3
     # via
