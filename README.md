@@ -29,6 +29,9 @@ The API is hosted at `https://api.unstructured.io`.
 	**OR** <br />
 	just start the fast-API locally with `make run-web-app`
 
+## Quick Tour
+
+You can run this [Colab notebook](https://colab.research.google.com/drive/12mx7QE0Zm4jGB-3yTa9UBRhAsHU0ZScJ) to see how [pipeline-section.ipynb](/pipeline-notebooks/pipeline-section.ipynb) extracts the narrative text sections from an SEC Filing and defines an API.
 
 ## Extracting Narrative Text from an SEC Filing
 
@@ -140,8 +143,6 @@ and `open_form_by_ticker('mmm', '10-K', your_organization_name, your_email)` ope
 ### Generating Python files from the pipeline notebooks
 
 The python module [section.py](/prepline_sec_filings/api/section.py) contains the FASTApi code needed to serve the API. It's created with `make generate-api`, which derives the API from the notebook [pipeline-section.ipynb](/pipeline-notebooks/pipeline-section.ipynb).
-
-You can run `pipeline-section.ipynb` from this [Colab notebook](https://colab.research.google.com/drive/12mx7QE0Zm4jGB-3yTa9UBRhAsHU0ZScJ).
 
 You can generate the FastAPI APIs from all [pipeline-notebooks/](/pipeline-notebooks) by running `make generate-api`.
 
