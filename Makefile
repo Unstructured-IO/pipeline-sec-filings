@@ -196,6 +196,9 @@ check-notebooks:
 tidy:
 	black --line-length 100 ${PACKAGE_NAME}
 	black --line-length 100 test_${PIPELINE_PACKAGE}
+	black --line-length 100 test_${PIPELINE_PACKAGE}_integration
+	black --line-length 100 test_real_docs
+	black --line-length 100 test_utils
 
 ## tidy-notebooks:	             execute notebooks and remove metadata
 .PHONY: tidy-notebooks

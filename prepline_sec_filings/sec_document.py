@@ -1,6 +1,12 @@
 from functools import partial
 import re
-from typing import Final, List, Optional, Iterable, Iterator, Any, Tuple
+from typing import List, Optional, Iterable, Iterator, Any, Tuple
+import sys
+
+if sys.version_info < (3, 8):
+    from typing_extensions import Final
+else:
+    from typing import Final
 
 import numpy as np
 import numpy.typing as npt

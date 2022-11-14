@@ -175,7 +175,7 @@ typing-extensions==4.3.0
     #   mypy
     #   pydantic
     #   starlette
-unstructured==0.2.1
+unstructured==0.2.5
     # via -r requirements/base.in
 unstructured-api-tools==0.4.3
     # via -r requirements/base.in

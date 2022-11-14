@@ -1,7 +1,13 @@
 import os
 from pathlib import Path
 import pytest
-from typing import Final, List
+from typing import List
+import sys
+
+if sys.version_info < (3, 8):
+    from typing_extensions import Final
+else:
+    from typing import Final
 
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor

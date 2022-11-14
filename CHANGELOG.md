@@ -1,5 +1,6 @@
 ## 0.2.1-dev
 
+* Add alternative way of importing `Final` to support google colab
 * Dependency bumps
 
 ## 0.2.0
