@@ -234,6 +234,7 @@ def test_section_narrative_api_health_check():
 
     assert response.status_code == 200
 
+
 def test_core_app_health_check():
     # NOTE(crag): switch all tests to core_app when rate limiting is removed
     client = TestClient(core_app)
