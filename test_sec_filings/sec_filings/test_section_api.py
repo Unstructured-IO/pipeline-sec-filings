@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 
 from unstructured_api_tools.pipelines.api_conventions import get_pipeline_path
 
+from prepline_sec_filings.api.app import app as core_app
 from prepline_sec_filings.api.section import app
 
 SECTION_ROUTE = get_pipeline_path("section")
@@ -229,6 +230,14 @@ def test_section_narrative_api_with_headers(
 
 def test_section_narrative_api_health_check():
     client = TestClient(app)
+    response = client.get("/healthcheck")
+
+    assert response.status_code == 200
+
+
+def test_core_app_health_check():
+    # NOTE(crag): switch all tests to core_app when rate limiting is removed
+    client = TestClient(core_app)
     response = client.get("/healthcheck")
 
     assert response.status_code == 200

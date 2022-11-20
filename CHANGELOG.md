@@ -1,5 +1,6 @@
 ## 0.2.1-dev
 
+* More general (non-pipeline-specific) way of starting the app
 * Add alternative way of importing `Final` to support google colab
 * Dependency bumps
 
