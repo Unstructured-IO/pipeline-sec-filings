@@ -5,3 +5,6 @@ ratelimit
 requests
 numpy
 sklearn
+
+# NOTE(robinson) - Required pins for security scans
+jupyter-core>=4.11.2
