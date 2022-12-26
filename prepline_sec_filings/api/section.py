@@ -158,7 +158,7 @@ def pipeline_api(
     elif response_type == "text/csv":
         return convert_to_isd_csv(results)
     else:
-        return "unsupported response type"
+        raise ValueError(f"Unsupported response type for {response_type}")
 
 
 import json
