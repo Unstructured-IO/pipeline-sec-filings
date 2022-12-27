@@ -44,7 +44,7 @@ fastjsonschema==2.16.2
     # via nbformat
 flake8==5.0.4
     # via -r dev.in
-ipykernel==6.19.3
+ipykernel==6.20.0
     # via
     #   ipywidgets
     #   jupyter
