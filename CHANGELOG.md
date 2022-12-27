@@ -1,11 +1,6 @@
-## 0.2.2-dev
-
-* Update `pipeline_api` to support `text/csv` response
-* Add new function `convert_to_isd_csv`
-* Add test function `test_section_narrative_api_with_text_csv_response_type`
-
 ## 0.2.1-dev
 
+* Support text/csv response type
 * More general (non-pipeline-specific) way of starting the app
 * Add alternative way of importing `Final` to support google colab
 * Dependency bumps
