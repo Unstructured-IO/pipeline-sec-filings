@@ -21,6 +21,15 @@ router = APIRouter()
 RATE_LIMIT = os.environ.get("PIPELINE_API_RATE_LIMIT", "1/second")
 
 
+def is_expected_response_type(media_type, response_type):
+    if media_type == "application/json" and response_type not in [dict, list]:
+        return True
+    elif media_type == "text/csv" and response_type != str:
+        return True
+    else:
+        return False
+
+
 # pipeline-api
 from prepline_sec_filings.sections import (
     section_string_to_enum,
@@ -78,7 +87,38 @@ def get_regex_enum(section_regex):
     return CustomSECSection.CUSTOM
 
 
-def pipeline_api(text, m_section=[], m_section_regex=[]):
+import io
+import csv
+from typing import Dict
+from unstructured.documents.elements import Text, NarrativeText, Title, ListItem
+
+
+def convert_to_isd_csv(results: dict) -> str:
+    """
+    Returns the representation of document elements as an Initial Structured Document (ISD)
+    in CSV Format.
+    """
+    csv_fieldnames: List[str] = ["section", "element_type", "text"]
+    new_rows = []
+    for section, section_narrative in results.items():
+        rows: List[Dict[str, str]] = convert_to_isd(section_narrative)
+        for row in rows:
+            new_row_item = dict()
+            new_row_item["section"] = section
+            new_row_item["element_type"] = row["type"]
+            new_row_item["text"] = row["text"]
+            new_rows.append(new_row_item)
+
+    with io.StringIO() as buffer:
+        csv_writer = csv.DictWriter(buffer, fieldnames=csv_fieldnames)
+        csv_writer.writeheader()
+        csv_writer.writerows(new_rows)
+        return buffer.getvalue()
+
+
+def pipeline_api(
+    text, response_type="application/json", m_section=[], m_section_regex=[]
+):
     """Many supported sections including: RISK_FACTORS, MANAGEMENT_DISCUSSION, and many more"""
     validate_section_names(m_section)
 
@@ -110,10 +150,15 @@ def pipeline_api(text, m_section=[], m_section_regex=[]):
         with timeout(seconds=5):
             section_elements = sec_document.get_section_narrative(regex_enum)
             results[f"REGEX_{i}"] = section_elements
-    return {
-        section: convert_to_isd(section_narrative)
-        for section, section_narrative in results.items()
-    }
+    if response_type == "application/json":
+        return {
+            section: convert_to_isd(section_narrative)
+            for section, section_narrative in results.items()
+        }
+    elif response_type == "text/csv":
+        return convert_to_isd_csv(results)
+    else:
+        raise ValueError(f"Unsupported response type for {response_type}")
 
 
 import json
@@ -187,10 +232,17 @@ class MultipartMixedResponse(StreamingResponse):
 async def pipeline_1(
     request: Request,
     text_files: Union[List[UploadFile], None] = File(default=None),
+    output_format: Union[str, None] = Form(default=None),
     section: List[str] = Form(default=[]),
     section_regex: List[str] = Form(default=[]),
 ):
     content_type = request.headers.get("Accept")
+
+    default_response_type = output_format or "application/json"
+    if not content_type or content_type == "*/*" or content_type == "multipart/mixed":
+        media_type = default_response_type
+    else:
+        media_type = content_type
 
     if isinstance(text_files, list) and len(text_files):
         if len(text_files) > 1:
@@ -212,14 +264,13 @@ async def pipeline_1(
                         text,
                         m_section=section,
                         m_section_regex=section_regex,
+                        response_type=media_type,
                     )
                     if type(response) not in [str, bytes]:
                         response = json.dumps(response)
                     yield response
 
-            return MultipartMixedResponse(
-                response_generator(),
-            )
+            return MultipartMixedResponse(response_generator(), content_type=media_type)
         else:
 
             text_file = text_files[0]
@@ -229,9 +280,25 @@ async def pipeline_1(
                 text,
                 m_section=section,
                 m_section_regex=section_regex,
+                response_type=media_type,
             )
 
-            return response
+            if is_expected_response_type(media_type, type(response)):
+                return PlainTextResponse(
+                    content=(
+                        f"Conflict in media type {media_type}"
+                        f" with response type {type(response)}.\n"
+                    ),
+                    status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                )
+            valid_response_types = ["application/json", "text/csv", "*/*"]
+            if media_type in valid_response_types:
+                return response
+            else:
+                return PlainTextResponse(
+                    content=f"Unsupported media type {media_type}.\n",
+                    status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                )
 
     else:
         return PlainTextResponse(

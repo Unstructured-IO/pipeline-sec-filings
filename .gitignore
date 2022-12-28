@@ -148,3 +148,5 @@ tmp*
 
 # downloaded filings from experimental notebooks, for example
 *xbrl
+
+*.csv
