@@ -65,6 +65,29 @@ generate-api:
 		--output-directory ./${PACKAGE_NAME}/api
 
 
+##########
+# Docker #
+##########
+
+# Docker targets are provided for convenience only and are not required in a standard development environment
+
+# Note that the image has notebooks baked in, however the current working directory
+# is mounted under /home/notebook-user/local/ when the image is started with
+# docker-start-api or docker-start-jupyter
+
+.PHONY: docker-build
+docker-build:
+	PIP_VERSION=${PIP_VERSION} PIPELINE_FAMILY=${PIPELINE_FAMILY} PIPELINE_PACKAGE=${PIPELINE_PACKAGE} ./scripts/docker-build.sh
+
+.PHONY: docker-start-api
+docker-start-api:
+	docker run -p 8000:8000 --mount type=bind,source=$(realpath .),target=/home/notebook-user/local -t --rm pipeline-family-${PIPELINE_FAMILY}-dev:latest uvicorn ${PACKAGE_NAME}.api.app:app --host 0.0.0.0 --port 8000
+
+.PHONY: docker-start-jupyter
+docker-start-jupyter:
+	docker run -p 8888:8888 --mount type=bind,source=$(realpath .),target=/home/notebook-user/local -t --rm pipeline-family-${PIPELINE_FAMILY}-dev:latest jupyter-notebook --port 8888 --ip 0.0.0.0 --no-browser --NotebookApp.token='' --NotebookApp.password=''
+
+
 #########
 # Local #
 #########
@@ -78,29 +101,6 @@ run-jupyter:
 .PHONY: run-web-app
 run-web-app:
 	 PYTHONPATH=. uvicorn ${PACKAGE_NAME}.api.app:app --reload
-
-
-##########
-# Docker #
-##########
-
-# Docker targets are provided for convenience only and are not required in a standard development environment
-
-# Note that the image has notebooks baked in, however the current working directory
-# is mounted under /home/notebook-user/local/ when the image is started with
-# docker-start-api or docker-start-jupyter
-
-.PHONY: docker-build
-docker-build:
-	PIP_VERSION=${PIP_VERSION} PIPELINE_FAMILY=${PIPELINE_FAMILY} ./scripts/docker-build.sh
-
-.PHONY: docker-start-api
-docker-start-api:
-	docker run  -p 8000:8000 --mount type=bind,source=$(realpath .),target=/home/notebook-user/local -t --rm pipeline-family-sec-filings-dev:latest uvicorn prepline_sec_filings.api.section:app --host 0.0.0.0 --port 8000
-
-.PHONY: docker-start-jupyter
-docker-start-jupyter:
-	docker run  -p 8888:8888 --mount type=bind,source=$(realpath .),target=/home/notebook-user/local -t --rm pipeline-family-sec-filings-dev:latest jupyter-notebook --port 8888 --ip 0.0.0.0 --no-browser --NotebookApp.token='' --NotebookApp.password=''
 
 
 #################
