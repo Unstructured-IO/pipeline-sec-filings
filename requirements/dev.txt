@@ -44,14 +44,14 @@ fastjsonschema==2.16.2
     # via nbformat
 flake8==5.0.4
     # via -r dev.in
-ipykernel==6.20.0
+ipykernel==6.20.1
     # via
     #   ipywidgets
     #   jupyter
     #   jupyter-console
     #   notebook
     #   qtconsole
-ipython==8.7.0
+ipython==8.8.0
     # via
     #   -r dev.in
     #   ipykernel
