@@ -45,7 +45,7 @@ ghapi==1.0.3
     # via nbdev
 iniconfig==1.1.1
     # via pytest
-ipykernel==6.20.0
+ipykernel==6.20.1
     # via -r test.in
 ipython==8.8.0
     # via
