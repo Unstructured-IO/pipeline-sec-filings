@@ -5,12 +5,42 @@
 
 import os
 from typing import List, Union
-
 from fastapi import status, FastAPI, File, Form, Request, UploadFile, APIRouter
 from slowapi.errors import RateLimitExceeded
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from fastapi.responses import PlainTextResponse
+import json
+from fastapi.responses import StreamingResponse
+from starlette.types import Send
+from base64 import b64encode
+from typing import Optional, Mapping, Iterator, Tuple
+import secrets
+from prepline_sec_filings.sections import (
+    section_string_to_enum,
+    validate_section_names,
+    SECSection,
+)
+from prepline_sec_filings.sec_document import (
+    SECDocument,
+    REPORT_TYPES,
+    VALID_FILING_TYPES,
+)
+from enum import Enum
+import re
+import signal
+from unstructured.staging.base import convert_to_isd
+from prepline_sec_filings.sections import (
+    ALL_SECTIONS,
+    SECTIONS_10K,
+    SECTIONS_10Q,
+    SECTIONS_S1,
+)
+import io
+import csv
+from typing import Dict
+from unstructured.documents.elements import Text, NarrativeText, Title, ListItem
+
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
@@ -31,27 +61,6 @@ def is_expected_response_type(media_type, response_type):
 
 
 # pipeline-api
-from prepline_sec_filings.sections import (
-    section_string_to_enum,
-    validate_section_names,
-    SECSection,
-)
-from prepline_sec_filings.sec_document import (
-    SECDocument,
-    REPORT_TYPES,
-    VALID_FILING_TYPES,
-)
-from enum import Enum
-import re
-import signal
-
-from unstructured.staging.base import convert_to_isd
-from prepline_sec_filings.sections import (
-    ALL_SECTIONS,
-    SECTIONS_10K,
-    SECTIONS_10Q,
-    SECTIONS_S1,
-)
 
 
 class timeout:
@@ -85,12 +94,6 @@ def get_regex_enum(section_regex):
             return self.value
 
     return CustomSECSection.CUSTOM
-
-
-import io
-import csv
-from typing import Dict
-from unstructured.documents.elements import Text, NarrativeText, Title, ListItem
 
 
 def convert_to_isd_csv(results: dict) -> str:
@@ -159,14 +162,6 @@ def pipeline_api(
         return convert_to_isd_csv(results)
     else:
         raise ValueError(f"Unsupported response type for {response_type}")
-
-
-import json
-from fastapi.responses import StreamingResponse
-from starlette.types import Send
-from base64 import b64encode
-from typing import Optional, Mapping, Iterator, Tuple
-import secrets
 
 
 class MultipartMixedResponse(StreamingResponse):
@@ -246,7 +241,11 @@ async def pipeline_1(
 
     if isinstance(text_files, list) and len(text_files):
         if len(text_files) > 1:
-            if content_type and content_type not in ["*/*", "multipart/mixed"]:
+            if content_type and content_type not in [
+                "*/*",
+                "multipart/mixed",
+                "application/json",
+            ]:
                 return PlainTextResponse(
                     content=(
                         f"Conflict in media type {content_type}"
@@ -255,7 +254,7 @@ async def pipeline_1(
                     status_code=status.HTTP_406_NOT_ACCEPTABLE,
                 )
 
-            def response_generator():
+            def response_generator(is_multipart):
                 for file in text_files:
 
                     text = file.file.read().decode("utf-8")
@@ -266,11 +265,17 @@ async def pipeline_1(
                         m_section_regex=section_regex,
                         response_type=media_type,
                     )
-                    if type(response) not in [str, bytes]:
-                        response = json.dumps(response)
+                    if is_multipart:
+                        if type(response) not in [str, bytes]:
+                            response = json.dumps(response)
                     yield response
 
-            return MultipartMixedResponse(response_generator(), content_type=media_type)
+            if content_type == "multipart/mixed":
+                return MultipartMixedResponse(
+                    response_generator(is_multipart=True), content_type=media_type
+                )
+            else:
+                return response_generator(is_multipart=False)
         else:
 
             text_file = text_files[0]
