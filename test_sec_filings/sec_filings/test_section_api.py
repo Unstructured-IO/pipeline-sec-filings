@@ -173,6 +173,9 @@ def test_section_narrative_api_with_multiple_uploads(form_types, section, tmpdir
     response = client.post(
         SECTION_ROUTE,
         files=files,
+        headers={
+            "Accept": "multipart/mixed",
+        },
         data={"section": [section]},
     )
 
@@ -199,7 +202,13 @@ def test_section_narrative_api_with_multiple_uploads(form_types, section, tmpdir
     "form_types, section, accept_header, response_status",
     [
         (["10-K", "10-Q"], "RISK_FACTORS", "multipart/mixed", 200),
-        (["10-K", "10-Q"], "_ALL", "application/json", 406),
+        (["10-K", "10-Q"], "_ALL", "application/json", 200),
+        (
+            ["10-K", "10-Q"],
+            "_ALL",
+            "text/csv",  # Accept header must be multipart/mixed or application/json
+            406,
+        ),
         ([], "_ALL", "application/json", 400),
     ],
 )
@@ -223,7 +232,9 @@ def test_section_narrative_api_with_headers(
     response = client.post(
         SECTION_ROUTE,
         files=files,
-        headers={"Accept": accept_header},
+        headers={
+            "Accept": accept_header,
+        },
         data={"section": [section]},
     )
 
