@@ -77,6 +77,50 @@ def test_section_narrative_api(form_type, section, tmpdir):
 
 
 @pytest.mark.parametrize(
+    "form_type, section",
+    [
+        ("10-K", "RISK_FACTORS"),
+        ("10-Q", "RISK_FACTORS"),
+        ("S-1", "RISK_FACTORS"),
+        ("10-K", "_ALL"),
+        ("10-Q", "_ALL"),
+        ("S-1", "_ALL"),
+    ],
+)
+def test_section_narrative_api_labelstudio(form_type, section, tmpdir):
+    sample_document = generate_sample_document(form_type)
+    filename = os.path.join(tmpdir.dirname, "wilderness.xbrl")
+    with open(filename, "w") as f:
+        f.write(sample_document)
+
+    # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
+    app.state.limiter.reset()
+    client = TestClient(app)
+    response = client.post(
+        SECTION_ROUTE,
+        files=[("text_files", (filename, open(filename, "rb"), "text/plain"))],
+        data={"output_schema": "labelstudio", "section": [section]},
+    )
+
+    assert response.status_code == 200
+    response_dict = response.json()
+
+    assert response_dict["RISK_FACTORS"][0] == {
+            "data": {
+                "text": "The business could be attacked by wolverines.",
+                "ref_id": "bd91f9f2e43cf85a8ce9b7a19c2e63e5"
+            }
+    }
+    
+    assert response_dict["RISK_FACTORS"][1] == {
+            "data": {
+                "text": "The business could be attacked by bears.",
+                "ref_id": "e731c6ec715fedfe8d07fe84a7e02efb"
+            }
+    }
+
+
+@pytest.mark.parametrize(
     "form_type",
     [
         ("10-K"),
