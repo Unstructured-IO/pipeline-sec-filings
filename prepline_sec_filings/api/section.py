@@ -128,9 +128,9 @@ ISD = "isd"
 def pipeline_api(
     text,
     response_type="application/json",
-    response_schema="isd",
     m_section=[],
     m_section_regex=[],
+    response_schema="isd",
 ):
     """Many supported sections including: RISK_FACTORS, MANAGEMENT_DISCUSSION, and many more"""
     validate_section_names(m_section)
@@ -177,6 +177,8 @@ def pipeline_api(
         else:
             raise ValueError(f"Unsupported response schema for {response_schema}")
     elif response_type == "text/csv":
+        if response_schema != ISD:
+            raise ValueError(f"Unsupported response schema for {response_schema}")
         return convert_to_isd_csv(results)
     else:
         raise ValueError(f"Unsupported response type for {response_type}")
