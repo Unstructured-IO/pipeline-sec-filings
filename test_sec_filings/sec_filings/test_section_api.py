@@ -106,17 +106,17 @@ def test_section_narrative_api_labelstudio(form_type, section, tmpdir):
     response_dict = response.json()
 
     assert response_dict["RISK_FACTORS"][0] == {
-            "data": {
-                "text": "The business could be attacked by wolverines.",
-                "ref_id": "bd91f9f2e43cf85a8ce9b7a19c2e63e5"
-            }
+        "data": {
+            "text": "The business could be attacked by wolverines.",
+            "ref_id": "bd91f9f2e43cf85a8ce9b7a19c2e63e5",
+        }
     }
-    
+
     assert response_dict["RISK_FACTORS"][1] == {
-            "data": {
-                "text": "The business could be attacked by bears.",
-                "ref_id": "e731c6ec715fedfe8d07fe84a7e02efb"
-            }
+        "data": {
+            "text": "The business could be attacked by bears.",
+            "ref_id": "e731c6ec715fedfe8d07fe84a7e02efb",
+        }
     }
 
 
