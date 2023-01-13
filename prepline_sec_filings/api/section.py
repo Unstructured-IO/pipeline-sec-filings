@@ -40,6 +40,7 @@ import io
 import csv
 from typing import Dict
 from unstructured.documents.elements import Text, NarrativeText, Title, ListItem
+from unstructured.staging.label_studio import stage_for_label_studio
 
 
 limiter = Limiter(key_func=get_remote_address)
@@ -119,8 +120,17 @@ def convert_to_isd_csv(results: dict) -> str:
         return buffer.getvalue()
 
 
+# List of valid response schemas
+LABELSTUDIO = "labelstudio"
+ISD = "isd"
+
+
 def pipeline_api(
-    text, response_type="application/json", m_section=[], m_section_regex=[]
+    text,
+    response_type="application/json",
+    response_schema="isd",
+    m_section=[],
+    m_section_regex=[],
 ):
     """Many supported sections including: RISK_FACTORS, MANAGEMENT_DISCUSSION, and many more"""
     validate_section_names(m_section)
@@ -154,10 +164,18 @@ def pipeline_api(
             section_elements = sec_document.get_section_narrative(regex_enum)
             results[f"REGEX_{i}"] = section_elements
     if response_type == "application/json":
-        return {
-            section: convert_to_isd(section_narrative)
-            for section, section_narrative in results.items()
-        }
+        if response_schema == LABELSTUDIO:
+            return {
+                section: stage_for_label_studio(section_narrative)
+                for section, section_narrative in results.items()
+            }
+        elif response_schema == ISD:
+            return {
+                section: convert_to_isd(section_narrative)
+                for section, section_narrative in results.items()
+            }
+        else:
+            raise ValueError(f"Unsupported response schema for {response_schema}")
     elif response_type == "text/csv":
         return convert_to_isd_csv(results)
     else:
@@ -228,6 +246,7 @@ async def pipeline_1(
     request: Request,
     text_files: Union[List[UploadFile], None] = File(default=None),
     output_format: Union[str, None] = Form(default=None),
+    output_schema: str = Form(default=None),
     section: List[str] = Form(default=[]),
     section_regex: List[str] = Form(default=[]),
 ):
@@ -238,6 +257,8 @@ async def pipeline_1(
         media_type = default_response_type
     else:
         media_type = content_type
+
+    default_response_schema = output_schema or "isd"
 
     if isinstance(text_files, list) and len(text_files):
         if len(text_files) > 1:
@@ -264,6 +285,7 @@ async def pipeline_1(
                         m_section=section,
                         m_section_regex=section_regex,
                         response_type=media_type,
+                        response_schema=default_response_schema,
                     )
                     if is_multipart:
                         if type(response) not in [str, bytes]:
@@ -286,6 +308,7 @@ async def pipeline_1(
                 m_section=section,
                 m_section_regex=section_regex,
                 response_type=media_type,
+                response_schema=default_response_schema,
             )
 
             if is_expected_response_type(media_type, type(response)):
