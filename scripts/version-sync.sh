@@ -117,7 +117,7 @@ for i in "${!FILES_TO_CHECK[@]}"; do
         # Replace semver in VERSIONFILE with semver obtained from SOURCE_FILE
         TMPFILE=$(mktemp /tmp/new_version.XXXXXX)
 	# Check sed version, exit if version < 4.3
-	if ! /usr/bin/sed --version > /dev/null 2>&1; then
+	if ! sed --version > /dev/null 2>&1; then
             CURRENT_VERSION=1.archaic
         else
             CURRENT_VERSION=$(sed --version | head -n1 | cut -d" " -f4)
