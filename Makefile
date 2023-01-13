@@ -140,7 +140,7 @@ dl-test-artifacts:
 
 .PHONY: verify-artifacts
 verify-artifacts:
-	sha256sum --check --status sample-sec-docs/sample-sec-docs.sha256
+	sha256sum --check --status sample-docs/sample-sec-docs.sha256
 
 .PHONY: dl-test-artifacts-source
 dl-test-artifacts-source:
