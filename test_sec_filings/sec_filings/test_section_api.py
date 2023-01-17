@@ -147,7 +147,7 @@ def test_section_narrative_api_with_unsupported_response_schema(form_type, secti
     )
 
     assert response.status_code != 406
-    assert response.content == "Unsupported response schema unsupported.\n",
+    assert response.content == "Unsupported response schema unsupported.\n"
 
 @pytest.mark.parametrize(
     "form_type",
@@ -377,7 +377,7 @@ def test_section_narrative_api_csv_response_with_unsupported_response_schema(
         data={"output_format": response_type, "output_schema": "unsupported", "section": [section]},
     )
     assert response.status_code == 406
-    assert response.content == "Unsupported response schema unsupported.\n",
+    assert response.content == "Unsupported response schema unsupported.\n"
 
 
 
