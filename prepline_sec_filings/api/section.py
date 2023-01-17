@@ -310,7 +310,7 @@ async def pipeline_1(
                 response_type=media_type,
                 response_schema=default_response_schema,
             )
-
+            
             if is_expected_response_type(media_type, type(response)):
                 return PlainTextResponse(
                     content=(
@@ -321,6 +321,15 @@ async def pipeline_1(
                 )
             valid_response_types = ["application/json", "text/csv", "*/*"]
             if media_type in valid_response_types:
+                valid_response_schemas = ["isd"]
+                if media_type == "application/json":
+                    valid_response_schemas.append("labelstudio")
+                if response_schema not in valid_response_schemas:
+                    return PlainTextResponse(
+                        content=f"Unsupported response schema {response_schema}.\n",
+                        status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                    )
+
                 return response
             else:
                 return PlainTextResponse(
