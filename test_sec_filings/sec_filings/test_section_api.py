@@ -361,7 +361,9 @@ def test_section_narrative_api_csv_response(form_type, response_type, section, t
         ("S-1", "text/csv", "_ALL"),
     ],
 )
-def test_section_narrative_api_csv_response_with_unsupported_response_schema(form_type, response_type, section, tmpdir):
+def test_section_narrative_api_csv_response_with_unsupported_response_schema(
+    form_type, response_type, section, tmpdir
+):
     sample_document = generate_sample_document(form_type)
     filename = os.path.join(tmpdir.dirname, "wilderness.xbrl")
     with open(filename, "w") as f:
@@ -377,7 +379,7 @@ def test_section_narrative_api_csv_response_with_unsupported_response_schema(for
     )
     assert response.status_code != 200
     print(response.json())
-    
+
 
 def test_section_narrative_api_health_check():
     client = TestClient(app)
