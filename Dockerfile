@@ -36,7 +36,8 @@ COPY pipeline-notebooks pipeline-notebooks
 
 # NOTE(robinson) - Can remove the secret mount once the unstructured repo is public
 # NOTE(crag) - Cannot use an ARG in the dst= path (so it seems), hence no ${NB_USER}, ${NB_UID}
-RUN python3.8 -m pip install --no-cache -r requirements-base.txt \
-  && python3.8 -m pip install --no-cache -r requirements-dev.txt \
+RUN python3.8 -m pip install pip==${PIP_VERSION} \
+  && pip3.8 install --no-cache -r requirements-base.txt \
+  && pip3.8 install --no-cache -r requirements-dev.txt \
   && python3.8 -c "import nltk; nltk.download('punkt')" \
   && python3.8 -c "import nltk; nltk.download('averaged_perceptron_tagger')"
