@@ -7,7 +7,6 @@
 * Add alternative way of importing `Final` to support google colab
 * Dependency bumps
 
-
 ## 0.2.0
 
 * Updated section API to accept multiple text files uploads as `text_files` parameter.
