@@ -140,6 +140,8 @@ def test_section_narrative_api_with_unsupported_response_schema(form_type, secti
     # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
     app.state.limiter.reset()
     client = TestClient(app)
+    
+    # FIXME(nyoon): need to handle ValueError in a better way in unstructured-api-tools
     with pytest.raises(ValueError):
         response = client.post(
             SECTION_ROUTE,
@@ -373,6 +375,8 @@ def test_section_narrative_api_csv_response_with_unsupported_response_schema(
     # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
     app.state.limiter.reset()
     client = TestClient(app)
+    
+    # FIXME(nyoon): need to handle ValueError in a better way in unstructured-api-tools
     with pytest.raises(ValueError):
         response = client.post(
             SECTION_ROUTE,
