@@ -140,8 +140,8 @@ def test_section_narrative_api_with_unsupported_response_schema(form_type, secti
     # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
     app.state.limiter.reset()
     client = TestClient(app)
-    response = with pytest.raises(ValueError):
-        client.post(
+    with pytest.raises(ValueError):
+        response = client.post(
             SECTION_ROUTE,
             files=[("text_files", (filename, open(filename, "rb"), "text/plain"))],
             data={"output_schema": "unsupported", "section": [section]},
@@ -373,8 +373,8 @@ def test_section_narrative_api_csv_response_with_unsupported_response_schema(
     # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
     app.state.limiter.reset()
     client = TestClient(app)
-    response = with pytest.raises(ValueError):
-        client.post(
+    with pytest.raises(ValueError):
+        response = client.post(
             SECTION_ROUTE,
             files=[("text_files", (filename, open(filename, "rb"), "text/plain"))],
             data={"output_format": response_type, "output_schema": "unsupported", "section": [section]},
