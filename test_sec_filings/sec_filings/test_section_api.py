@@ -377,9 +377,13 @@ def test_section_narrative_api_csv_response_with_unsupported_response_schema(
         response = client.post(
             SECTION_ROUTE,
             files=[("text_files", (filename, open(filename, "rb"), "text/plain"))],
-            data={"output_format": response_type, "output_schema": "unsupported", "section": [section]},
+            data={
+                "output_format": response_type,
+                "output_schema": "unsupported",
+                "section": [section],
+            },
         )
-        
+
     assert response.status_code == 406
     assert response.content == "Unsupported response schema unsupported.\n"
 
