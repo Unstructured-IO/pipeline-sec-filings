@@ -148,9 +148,8 @@ def test_section_narrative_api_with_unsupported_response_schema(form_type, secti
             files=[("text_files", (filename, open(filename, "rb"), "text/plain"))],
             data={"output_schema": "unsupported", "section": [section]},
         )
-
-    assert response.status_code == 406
-    assert response.content == "Unsupported response schema unsupported.\n"
+        assert response.status_code == 406
+        assert response.content == "Unsupported response schema unsupported.\n"
 
 
 @pytest.mark.parametrize(
@@ -387,9 +386,8 @@ def test_section_narrative_api_csv_response_with_unsupported_response_schema(
                 "section": [section],
             },
         )
-
-    assert response.status_code == 406
-    assert response.content == "Unsupported response schema unsupported.\n"
+        assert response.status_code == 406
+        assert response.content == "Unsupported response schema unsupported.\n"
 
 
 def test_section_narrative_api_health_check():
