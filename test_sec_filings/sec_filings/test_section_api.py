@@ -77,6 +77,82 @@ def test_section_narrative_api(form_type, section, tmpdir):
 
 
 @pytest.mark.parametrize(
+    "form_type, section",
+    [
+        ("10-K", "RISK_FACTORS"),
+        ("10-Q", "RISK_FACTORS"),
+        ("S-1", "RISK_FACTORS"),
+        ("10-K", "_ALL"),
+        ("10-Q", "_ALL"),
+        ("S-1", "_ALL"),
+    ],
+)
+def test_section_narrative_api_labelstudio(form_type, section, tmpdir):
+    sample_document = generate_sample_document(form_type)
+    filename = os.path.join(tmpdir.dirname, "wilderness.xbrl")
+    with open(filename, "w") as f:
+        f.write(sample_document)
+
+    # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
+    app.state.limiter.reset()
+    client = TestClient(app)
+    response = client.post(
+        SECTION_ROUTE,
+        files=[("text_files", (filename, open(filename, "rb"), "text/plain"))],
+        data={"output_schema": "labelstudio", "section": [section]},
+    )
+
+    assert response.status_code == 200
+    response_dict = response.json()
+
+    assert response_dict["RISK_FACTORS"][0] == {
+        "data": {
+            "text": "The business could be attacked by wolverines.",
+            "ref_id": "bd91f9f2e43cf85a8ce9b7a19c2e63e5",
+        }
+    }
+
+    assert response_dict["RISK_FACTORS"][1] == {
+        "data": {
+            "text": "The business could be attacked by bears.",
+            "ref_id": "e731c6ec715fedfe8d07fe84a7e02efb",
+        }
+    }
+
+
+@pytest.mark.parametrize(
+    "form_type, section",
+    [
+        ("10-K", "RISK_FACTORS"),
+        ("10-Q", "RISK_FACTORS"),
+        ("S-1", "RISK_FACTORS"),
+        ("10-K", "_ALL"),
+        ("10-Q", "_ALL"),
+        ("S-1", "_ALL"),
+    ],
+)
+def test_section_narrative_api_with_unsupported_response_schema(form_type, section, tmpdir):
+    sample_document = generate_sample_document(form_type)
+    filename = os.path.join(tmpdir.dirname, "wilderness.xbrl")
+    with open(filename, "w") as f:
+        f.write(sample_document)
+
+    # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
+    app.state.limiter.reset()
+    client = TestClient(app)
+
+    # FIXME(nyoon): need to handle ValueError in a better way in unstructured-api-tools
+    with pytest.raises(ValueError):
+        response = client.post(
+            SECTION_ROUTE,
+            files=[("text_files", (filename, open(filename, "rb"), "text/plain"))],
+            data={"output_schema": "unsupported", "section": [section]},
+        )
+        assert response.status_code == 406
+        assert response.content == "Unsupported response schema unsupported.\n"
+
+
+@pytest.mark.parametrize(
     "form_type",
     [
         ("10-K"),
@@ -274,6 +350,44 @@ def test_section_narrative_api_csv_response(form_type, response_type, section, t
     assert [x["section"] for x in response_list]
     assert [x["element_type"] for x in response_list]
     assert [x["text"] for x in response_list]
+
+
+@pytest.mark.parametrize(
+    "form_type, response_type, section",
+    [
+        ("10-K", "text/csv", "RISK_FACTORS"),
+        ("10-Q", "text/csv", "RISK_FACTORS"),
+        ("S-1", "text/csv", "RISK_FACTORS"),
+        ("10-K", "text/csv", "_ALL"),
+        ("10-Q", "text/csv", "_ALL"),
+        ("S-1", "text/csv", "_ALL"),
+    ],
+)
+def test_section_narrative_api_csv_response_with_unsupported_response_schema(
+    form_type, response_type, section, tmpdir
+):
+    sample_document = generate_sample_document(form_type)
+    filename = os.path.join(tmpdir.dirname, "wilderness.xbrl")
+    with open(filename, "w") as f:
+        f.write(sample_document)
+
+    # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
+    app.state.limiter.reset()
+    client = TestClient(app)
+
+    # FIXME(nyoon): need to handle ValueError in a better way in unstructured-api-tools
+    with pytest.raises(ValueError):
+        response = client.post(
+            SECTION_ROUTE,
+            files=[("text_files", (filename, open(filename, "rb"), "text/plain"))],
+            data={
+                "output_format": response_type,
+                "output_schema": "unsupported",
+                "section": [section],
+            },
+        )
+        assert response.status_code == 406
+        assert response.content == "Unsupported response schema unsupported.\n"
 
 
 def test_section_narrative_api_health_check():
