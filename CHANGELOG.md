@@ -1,5 +1,6 @@
 ## 0.2.1
 
+* Supports json responses suitable for Label Studio.
 * Allows a json list instead of a multipart response for multi-file requests
 * Supports text/csv responses instead of just json
 * More general (non-pipeline-specific) way of starting the app
