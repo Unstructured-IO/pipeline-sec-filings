@@ -1,4 +1,4 @@
-## 0.2.1-dev
+## 0.2.1
 
 * Allows a json list instead of a multipart response for multi-file requests
 * Supports text/csv responses instead of just json

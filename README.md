@@ -128,7 +128,8 @@ You can also use special regex characters in your pattern, as shown in the examp
 ```
 
 You can always replace the header `-H 'accept: application/json'` with `-H 'accept: text/csv'` depending on what you need.
-In addition, you can add the form `-F 'output_schema=labelstudio'` if you want an output to be compatible with labelstudio[https://labelstud.io] as follows:
+
+In addition, you can add the form `-F 'output_schema=labelstudio'` if you want an output to be compatible with [labelstudio](https://labelstud.io) as follows:
 
 ```
  curl -X 'POST' \
