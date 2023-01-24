@@ -127,7 +127,20 @@ You can also use special regex characters in your pattern, as shown in the examp
   -F "section_regex=^(\S+\W?)+$"
 ```
 
-You can always replace the header `-H 'accept: application/json'` with `-H 'accept: text/csv'` depending on what you need.
+You can always replace the header `-H 'accept: application/json'` with `-H 'accept: text/csv'` depending on the format you want to fetch from the API as follows:
+
+```
+ curl -X 'POST' \
+  'https://api.unstructured.io/sec-filings/v0.2.1/section' \
+  -H 'accept: text/csv' \
+  -H 'Content-Type: multipart/form-data' \
+  -F 'text_files=@rgld-10-K-85535-000155837021011343.xbrl' \
+  -F section=RISK_FACTORS | jq -C . | less -R
+```
+The result will be:
+```
+"section,element_type,text\r\nRISK_FACTORS,NarrativeText,\"You should carefully consider the risks described in this section. Our future performance is subject to risks and uncertainties that could have a material adverse effect on our business, results of operations, and financial condition and the trading price of our common stock. We may be subject to other risks and uncertainties not presently known to us. In addition, please see our note about forward-looking statements included in the MD&A.\"\r\nRISK_FACTORS,NarrativeText,\"Our revenue is subject to volatility in metal prices, which could negatively affect our results of operations or cash flow.\"\r\nRISK_FACTORS,NarrativeText,\"Market prices for gold, silver, copper, nickel, and other metals may fluctuate widely over time and are affected by numerous factors beyond our control. These factors include metal supply and demand, industrial and jewelry fabrication, investment demand, central banking actions, inflation expectations, currency values, interest rates, forward sales by metal producers, and political, trade, economic, or banking conditions.\"\r\n
+```
 
 In addition, you can add the form `-F 'output_schema=labelstudio'` if you want an output to be compatible with [labelstudio](https://labelstud.io) as follows:
 
