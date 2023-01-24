@@ -246,7 +246,7 @@ class MultipartMixedResponse(StreamingResponse):
         await send({"type": "http.response.body", "body": b"", "more_body": False})
 
 
-@router.post("/sec-filings/v0.2.0/section")
+@router.post("/sec-filings/v0.2.1/section")
 @limiter.limit(RATE_LIMIT)
 async def pipeline_1(
     request: Request,

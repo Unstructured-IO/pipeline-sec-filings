@@ -1,4 +1,4 @@
-## 0.2.1-dev
+## 0.2.1
 
 * Supports json responses suitable for Label Studio.
 * Allows a json list instead of a multipart response for multi-file requests
