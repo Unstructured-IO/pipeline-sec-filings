@@ -31,7 +31,7 @@ def get_file_from_ticker(ticker):
     with open(
         os.path.join(
             "test_real_docs",
-            "sample-sec-docs",
+            "sample-docs",
             f"{ticker}-{formtype}-{cik}-{accession_number}.xbrl",
         )
     ) as f:

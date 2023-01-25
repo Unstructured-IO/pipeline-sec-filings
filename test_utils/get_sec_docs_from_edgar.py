@@ -16,7 +16,7 @@ from prepline_sec_filings.fetch import (
 )
 
 
-SEC_DOCS_DIR = os.environ.get("SEC_DOCS_DIR", "sample-sec-docs")
+SEC_DOCS_DIR = os.environ.get("SEC_DOCS_DIR", "sample-docs")
 SEC_API_ORGANIZATION = os.environ.get("SEC_API_ORGANIZATION")
 SEC_API_EMAIL = os.environ.get("SEC_API_EMAIL")
 # only 1 of these 2 manifests types determines what gets downloaded
