@@ -36,7 +36,7 @@ You can run this [Colab notebook](https://colab.research.google.com/drive/12mx7Q
 ## Extracting Narrative Text from an SEC Filing
 
 To retrieve narrative text section(s) from an iXBRL S-1, 10-K, or 10-Q document (or amended version S-1/A, 10-K/A, or 10-Q/A), post the document to the `/section` API. You can try this out by downloading the sample documents using `make dl-test-artifacts`. Then, from
-the `sample-sec-docs` folder, run:
+the `sample-docs` folder, run:
 
 ```
 curl -X 'POST' \

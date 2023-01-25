@@ -76,7 +76,7 @@ def get_file_from_ticker(ticker):
     formtype = next(iter(examples[ticker]["forms"]))
     accession_number = examples[ticker]["forms"][formtype]
     with open(
-        os.path.join("sample-sec-docs", f"{ticker}-{formtype}-{cik}-{accession_number}.xbrl")
+        os.path.join("sample-docs", f"{ticker}-{formtype}-{cik}-{accession_number}.xbrl")
     ) as f:
         out = f.read()
     return out

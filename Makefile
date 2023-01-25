@@ -134,8 +134,8 @@ api-check:
 ## dl-test-artifacts:           downloads external artifacts used for testing
 .PHONY: dl-test-artifacts
 dl-test-artifacts:
-	wget -r -nH https://utic-dev-tech-fixtures.s3.us-east-2.amazonaws.com/sample-sec-docs/sample-sec-docs.tar.gz
-	tar -xf sample-sec-docs/sample-sec-docs.tar.gz -C sample-sec-docs/ && rm sample-sec-docs/sample-sec-docs.tar.gz
+	wget -r -nH -O sample-docs/sample-sec-docs.tar.gz https://utic-dev-tech-fixtures.s3.us-east-2.amazonaws.com/sample-sec-docs/sample-sec-docs.tar.gz
+	tar -xf sample-docs/sample-sec-docs.tar.gz -C sample-docs/ && rm sample-docs/sample-sec-docs.tar.gz
 	$(MAKE) verify-artifacts
 
 .PHONY: verify-artifacts

@@ -24,8 +24,8 @@ jobs:
       with:
         path: |
           .venv
-          sample-sec-docs
-        key: ci-venv-sec-${{ hashFiles('requirements/*.txt', 'sample-sec-docs/sample-sec-docs.sha256') }}
+          sample-docs
+        key: ci-venv-sec-${{ hashFiles('requirements/*.txt', 'sample-docs/sample-sec-docs.sha256') }}
     - name: Set up Python ${{ env.PYTHON_VERSION }}
       uses: actions/setup-python@v4
       with:
@@ -58,8 +58,8 @@ jobs:
       with:
         path: |
           .venv
-          sample-sec-docs
-        key: ci-venv-sec-${{ hashFiles('requirements/*.txt', 'sample-sec-docs/sample-sec-docs.sha256') }}
+          sample-docs
+        key: ci-venv-sec-${{ hashFiles('requirements/*.txt', 'sample-docs/sample-sec-docs.sha256') }}
     - uses: actions/cache@v3
       id: nltk-cache
       with:
@@ -94,8 +94,8 @@ jobs:
       with:
         path: |
           .venv
-          sample-sec-docs
-        key: ci-venv-sec-${{ hashFiles('requirements/*.txt', 'sample-sec-docs/sample-sec-docs.sha256') }}
+          sample-docs
+        key: ci-venv-sec-${{ hashFiles('requirements/*.txt', 'sample-docs/sample-sec-docs.sha256') }}
     - uses: actions/cache@v3
       id: nltk-cache
       with:
@@ -137,8 +137,8 @@ jobs:
       with:
         path: |
           .venv
-          sample-sec-docs
-        key: ci-venv-sec-${{ hashFiles('requirements/*.txt', 'sample-sec-docs/sample-sec-docs.sha256') }}
+          sample-docs
+        key: ci-venv-sec-${{ hashFiles('requirements/*.txt', 'sample-docs/sample-sec-docs.sha256') }}
     - name: API Consistency
       run: |
         source .venv/bin/activate
