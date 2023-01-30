@@ -48,9 +48,9 @@ install-ci: install-base install-test install-ipython-kernel
 ## pip-compile:                 compiles all base/dev/test requirements
 .PHONY: pip-compile
 pip-compile:
-	pip-compile requirements/base.in
-	pip-compile requirements/dev.in
-	pip-compile requirements/test.in
+	pip-compile --upgrade requirements/base.in
+	pip-compile --upgrade requirements/dev.in
+	pip-compile --upgrade requirements/test.in
 
 
 #########
