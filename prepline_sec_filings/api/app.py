@@ -10,6 +10,8 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
+from starlette_exporter import PrometheusMiddleware, handle_metrics
+
 from .section import router as section_router
 
 
@@ -21,9 +23,14 @@ app = FastAPI(
 )
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(
+    PrometheusMiddleware,
+    app_name="Unstructured Pipeline API",
+    skip_paths=["/metrics"]
+)
+app.add_route("/metrics", handle_metrics)
 
 app.include_router(section_router)
-
 
 @app.get("/healthcheck", status_code=status.HTTP_200_OK)
 async def healthcheck(request: Request):

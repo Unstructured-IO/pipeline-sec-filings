@@ -285,6 +285,8 @@ soupsieve==2.3.2.post1
     # via beautifulsoup4
 stack-data==0.6.2
     # via ipython
+starlette-exporter==0.15.1
+    # via pip-tools
 terminado==0.17.1
     # via
     #   jupyter-server
