@@ -56,7 +56,6 @@ idna==3.4
     #   anyio
     #   jsonschema
 ipykernel==6.21.1
-    # via
     #   ipywidgets
     #   jupyter
     #   jupyter-console
@@ -190,7 +189,7 @@ pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-pip-tools==6.12.1
+pip-tools==6.12.2
     # via -r dev.in
 platformdirs==2.6.2
     # via
