@@ -31,7 +31,7 @@ The API is hosted at `https://api.unstructured.io`.
 
 ## Quick Tour
 
-You can run this [Colab notebook](https://colab.research.google.com/drive/12mx7QE0Zm4jGB-3yTa9UBRhAsHU0ZScJ) to see how [pipeline-section.ipynb](/pipeline-notebooks/pipeline-section.ipynb) extracts the narrative text sections from an SEC Filing and defines an API.
+You can run this [Colab notebook](https://colab.research.google.com/drive/1W9jCOGbIrE43f7fHMUSn3g3xXhOIjx_v) to see how [pipeline-section.ipynb](/pipeline-notebooks/pipeline-section.ipynb) extracts the narrative text sections from an SEC Filing and defines an API.
 
 ## Extracting Narrative Text from an SEC Filing
 
