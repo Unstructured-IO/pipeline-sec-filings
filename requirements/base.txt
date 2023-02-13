@@ -70,7 +70,7 @@ markupsafe==2.1.2
     #   nbconvert
 mistune==2.0.4
     # via nbconvert
-mypy==0.991
+mypy==1.0.0
     # via unstructured-api-tools
 mypy-extensions==0.4.3
     # via mypy
