@@ -61,7 +61,7 @@ iniconfig==2.0.0
     # via pytest
 ipykernel==6.21.0
     # via -r test.in
-ipython==8.9.0
+ipython==8.10.0
     # via
     #   execnb
     #   ipykernel

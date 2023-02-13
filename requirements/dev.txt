@@ -63,7 +63,7 @@ ipykernel==6.21.0
     #   nbclassic
     #   notebook
     #   qtconsole
-ipython==8.8.0
+ipython==8.10.0
     # via
     #   -r dev.in
     #   ipykernel
