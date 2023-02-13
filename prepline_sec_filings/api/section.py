@@ -283,7 +283,6 @@ async def pipeline_1(
 
             def response_generator(is_multipart):
                 for file in text_files:
-
                     text = file.file.read().decode("utf-8")
 
                     response = pipeline_api(
@@ -305,7 +304,6 @@ async def pipeline_1(
             else:
                 return response_generator(is_multipart=False)
         else:
-
             text_file = text_files[0]
             text = text_file.file.read().decode("utf-8")
 
