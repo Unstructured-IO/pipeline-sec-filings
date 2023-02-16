@@ -65,6 +65,13 @@ generate-api:
 		--output-directory ./${PACKAGE_NAME}/api
 
 
+## generate-tests:				generates tests for FastAPI from notebooks
+.PHONY: generate-tests
+generate-tests:
+	PYTHONPATH=. unstructured_api_tools generate-tests-for-fastapi \
+		--input-directory ./pipeline-notebooks \
+		--api-folder ./${PACKAGE_NAME}/api
+
 ##########
 # Docker #
 ##########
@@ -125,6 +132,11 @@ test-integration:
 .PHONY: test-sample-docs
 test-sample-docs: verify-artifacts
 	PYTHONPATH=. pytest test_real_docs
+
+## test-fastapi
+.PHONY: test-fastapi
+test-fastapi:
+	PYTHONPATH=. pytest ./${PACKAGE_NAME}/api
 
 ## api-check:                   verifies auto-generated pipeline APIs match the existing ones
 .PHONY: api-check
