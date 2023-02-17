@@ -50,6 +50,7 @@ class SECDocument(HTMLDocument):
 
     def _filter_table_of_contents(self, elements: List[Text]) -> List[Text]:
         """Filter out unnecessary elements in the table of contents using keyword search."""
+        elements = [el for el in elements if isinstance(el, (Title, NarrativeText))]
         if self.filing_type in REPORT_TYPES:
             # NOTE(yuming): Narrow TOC as all elements within
             # the first two titles that contain the keyword 'part i\b'.
@@ -64,6 +65,8 @@ class SECDocument(HTMLDocument):
                         end = i - 1
                         filtered_elements = elements[start:end]
                         return filtered_elements
+            filtered_elements = elements[start:]
+            return filtered_elements
         elif self.filing_type in S1_TYPES:
             # NOTE(yuming): Narrow TOC as all elements within
             # the first pair of duplicated titles that contain the keyword 'prospectus'.
