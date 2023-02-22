@@ -51,10 +51,13 @@ class SECDocument(HTMLDocument):
     def _filter_table_of_contents(self, elements: List[Text]) -> List[Text]:
         """Filter out unnecessary elements in the table of contents using keyword search."""
         elements = [el for el in elements if isinstance(el, (Title, NarrativeText))] # (Title, NarrativeText)
+        # NOTE(Nathan): if the length of elements is too long, it probably means that they are not part of toc.
+        if len(elements) > 150:
+            return []
         if self.filing_type in REPORT_TYPES:
             # NOTE(yuming): Narrow TOC as all elements within
             # the first two titles that contain the keyword 'part i\b'.
-            start, end = None, None
+            start, end = 0, None
             for i, element in enumerate(elements):
                 if bool(re.match(r"(?i)part i\b", clean_sec_text(element.text))):
                     if start is None:
@@ -71,7 +74,7 @@ class SECDocument(HTMLDocument):
             # NOTE(yuming): Narrow TOC as all elements within
             # the first pair of duplicated titles that contain the keyword 'prospectus'.
             title_indices = defaultdict(list)
-            start = 0
+            _start = 0
             for i, element in enumerate(elements):
                 clean_title_text = clean_sec_text(element.text).lower()
                 title_indices[clean_title_text].append(i)
@@ -85,8 +88,9 @@ class SECDocument(HTMLDocument):
                     _end = indices[1] - 1
                     filtered_elements = elements[_start:_end]
                     return filtered_elements
-            filtered_elements = elements[start:]
-            return filtered_elements
+            if _start is not None:
+                filtered_elements = elements[_start:]
+                return filtered_elements
         # NOTE(yuming): Probably better ways to improve TOC,
         # but now we return [] if it fails to find the keyword.
         return []
@@ -114,7 +118,6 @@ class SECDocument(HTMLDocument):
                 ]
             ) and any([is_toc_title(el.text) for el in cluster_elements if isinstance(el, Title)]):
                 return out_cls.from_elements(self._filter_table_of_contents(cluster_elements))
-        import pdb; pdb.set_trace()
         return out_cls.from_elements(self._filter_table_of_contents(self.elements))
 
     def get_section_narrative_no_toc(self, section: SECSection) -> List[NarrativeText]:
@@ -178,7 +181,6 @@ class SECDocument(HTMLDocument):
         # usually does not contain any tables and sometimes tables are used for
         # title formating
         toc = self.get_table_of_contents()
-        import pdb; pdb.set_trace()
         if not toc.pages:
             return self.get_section_narrative_no_toc(section)
 
