@@ -50,14 +50,17 @@ class SECDocument(HTMLDocument):
 
     def _filter_table_of_contents(self, elements: List[Text]) -> List[Text]:
         """Filter out unnecessary elements in the table of contents using keyword search."""
-        elements = [el for el in elements if isinstance(el, (Title, NarrativeText))] # (Title, NarrativeText)
-        # NOTE(Nathan): if the length of elements is too long, it probably means that they are not part of toc.
-        if len(elements) > 150:
-            return []
+        elements = [
+            el for el in elements if isinstance(el, (Title, NarrativeText))
+        ]  # (Title, NarrativeText)
+        # NOTE(Nathan): if the length of elements is too long,
+        # it probably means that they are not part of toc.
+        # if len(elements) > 1000:
+        #    return []
         if self.filing_type in REPORT_TYPES:
             # NOTE(yuming): Narrow TOC as all elements within
             # the first two titles that contain the keyword 'part i\b'.
-            start, end = 0, None
+            start, end = None, None
             for i, element in enumerate(elements):
                 if bool(re.match(r"(?i)part i\b", clean_sec_text(element.text))):
                     if start is None:
@@ -68,8 +71,10 @@ class SECDocument(HTMLDocument):
                         end = i - 1
                         filtered_elements = elements[start:end]
                         return filtered_elements
-            filtered_elements = elements[start:]
-            return filtered_elements
+            if start is not None:
+                filtered_elements = elements[start:]
+                if len(filtered_elements) < 1000:
+                    return filtered_elements
         elif self.filing_type in S1_TYPES:
             # NOTE(yuming): Narrow TOC as all elements within
             # the first pair of duplicated titles that contain the keyword 'prospectus'.
@@ -79,7 +84,7 @@ class SECDocument(HTMLDocument):
                 clean_title_text = clean_sec_text(element.text).lower()
                 title_indices[clean_title_text].append(i)
                 if "prospectus" in clean_title_text:
-                    start = i
+                    _start = i
             duplicate_title_indices = {k: v for k, v in title_indices.items() if len(v) > 1}
             for title, indices in duplicate_title_indices.items():
                 # NOTE(yuming): Make sure that we find the pair of duplicated titles.
@@ -90,7 +95,8 @@ class SECDocument(HTMLDocument):
                     return filtered_elements
             if _start is not None:
                 filtered_elements = elements[_start:]
-                return filtered_elements
+                if len(filtered_elements) < 1000:
+                    return filtered_elements
         # NOTE(yuming): Probably better ways to improve TOC,
         # but now we return [] if it fails to find the keyword.
         return []
@@ -155,13 +161,13 @@ class SECDocument(HTMLDocument):
         if section_toc is None:
             # NOTE(yuming): unable to identify the section in TOC
             return (None, None)
-        
+
         # section_toc = first(section_toc_list)
         # for i in range(len(section_toc_list)):
         #    if isinstance(section_toc_list[i], Title):
         #        section_toc = section_toc_list[i]
         #        break
-        
+
         after_section_toc = toc.after_element(section_toc)
         next_section_toc = first(
             el
