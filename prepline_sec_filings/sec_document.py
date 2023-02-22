@@ -74,7 +74,7 @@ class SECDocument(HTMLDocument):
             # NOTE(yuming): Narrow TOC as all elements within
             # the first pair of duplicated titles that contain the keyword 'prospectus'.
             title_indices = defaultdict(list)
-            _start = 0
+            _start = None
             for i, element in enumerate(elements):
                 clean_title_text = clean_sec_text(element.text).lower()
                 title_indices[clean_title_text].append(i)
