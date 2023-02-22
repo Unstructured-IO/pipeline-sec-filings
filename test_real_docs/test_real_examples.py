@@ -130,8 +130,6 @@ def test_first_last(ticker, doc_elements, section, first_or_last, xfail):
         pytest.xfail()
     doc, _ = doc_elements
     parsed_risk_narratives = doc.get_section_narrative(section)
-    if parsed_risk_narratives == []:
-        pytest.xfail()
     sample = sample_first_last[ticker][section.name][first_or_last]
     idx = 0 if first_or_last == "first" else -1
     assert clean_sec_text(parsed_risk_narratives[idx].text) == clean_sec_text(sample)
