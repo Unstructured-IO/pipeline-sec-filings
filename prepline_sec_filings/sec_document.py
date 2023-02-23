@@ -17,8 +17,8 @@ from unstructured.cleaners.core import clean
 from unstructured.documents.elements import Text, ListItem, NarrativeText, Title, Element
 from unstructured.documents.html import HTMLDocument
 from unstructured.nlp.partition import is_possible_title
+from unstructured.partition.text_type import sentence_count
 from prepline_sec_filings.sections import SECSection
-
 
 VALID_FILING_TYPES: Final[List[str]] = [
     "10-K",
@@ -37,6 +37,23 @@ ITEM_TITLE_RE = re.compile(r"(?i)item \d{1,3}(?:[a-z]|\([a-z]\))?(?:\.)?(?::)?")
 # and is used for cleaning a section of text from a SEC filing.
 clean_sec_text = partial(clean, extra_whitespace=True, dashes=True, trailing_punctuation=True)
 
+# Note(Nathan): These strings are titles from brks 10-Q, nks 10-K, bj S-1 forms,
+#   which is_possible_title returned false due to 
+#   i) their word length being longer than title_max_word_length
+#   ii) small sentence_min_length value, and
+#   iii) low non_alpha_threshold,
+#   so we want to relax this constraint when evaluating these strings only.
+title_constraints_relaxed = [
+    "Consolidated Balance Sheets as of March 31, 2021 (unaudited) and September 30, 2020",
+    "Consolidated Statements of Operations for the three and six months ended March 31, 2021 and 2020 (unaudited)",
+    "Consolidated Statements of Comprehensive Income for the three and six months ended March 31, 2021 and 2020 (unaudited)",
+    "Consolidated Statements of Cash Flows for the six months ended March 31, 2021 and 2020 (unaudited)",
+    "Consolidated Statements of Changes in Stockholders Equity for the three and six months ended March 31, 2021 and 2020 (unaudited)",
+    "Notes to Consolidated Financial Statements (unaudited)",
+    "Item 2. Management’s Discussion and Analysis of Financial Condition and Results of Operations",
+    "Market for Registrant's Common Equity, Related Stockholder Matters and Issuer Purchases of Equity Securities",
+    "F-1"
+]
 
 def _raise_for_invalid_filing_type(filing_type: Optional[str]):
     if not filing_type:
@@ -51,12 +68,8 @@ class SECDocument(HTMLDocument):
     def _filter_table_of_contents(self, elements: List[Text]) -> List[Text]:
         """Filter out unnecessary elements in the table of contents using keyword search."""
         elements = [
-            el for el in elements if isinstance(el, (Title, NarrativeText))
-        ]  # (Title, NarrativeText)
-        # NOTE(Nathan): if the length of elements is too long,
-        # it probably means that they are not part of toc.
-        # if len(elements) > 1000:
-        #    return []
+            el for el in elements if isinstance(el, (Title, NarrativeText, Text))
+        ]
         if self.filing_type in REPORT_TYPES:
             # NOTE(yuming): Narrow TOC as all elements within
             # the first two titles that contain the keyword 'part i\b'.
@@ -73,6 +86,8 @@ class SECDocument(HTMLDocument):
                         return filtered_elements
             if start is not None:
                 filtered_elements = elements[start:]
+                # NOTE(Nathan): if the length of elements is too long,
+                # it probably means that they are not part of toc.
                 if len(filtered_elements) < 1000:
                     return filtered_elements
         elif self.filing_type in S1_TYPES:
@@ -95,6 +110,8 @@ class SECDocument(HTMLDocument):
                     return filtered_elements
             if _start is not None:
                 filtered_elements = elements[_start:]
+                # NOTE(Nathan): if the length of elements is too long,
+                # it probably means that they are not part of toc.
                 if len(filtered_elements) < 1000:
                     return filtered_elements
         # NOTE(yuming): Probably better ways to improve TOC,
@@ -161,12 +178,6 @@ class SECDocument(HTMLDocument):
         if section_toc is None:
             # NOTE(yuming): unable to identify the section in TOC
             return (None, None)
-
-        # section_toc = first(section_toc_list)
-        # for i in range(len(section_toc_list)):
-        #    if isinstance(section_toc_list[i], Title):
-        #        section_toc = section_toc_list[i]
-        #        break
 
         after_section_toc = toc.after_element(section_toc)
         next_section_toc = first(
@@ -363,6 +374,15 @@ def to_sklearn_format(elements: List[Element]) -> npt.NDArray[np.float32]:
     is_title: npt.NDArray[np.bool_] = np.array(
         [is_possible_title(el.text) for el in elements][: len(elements)], dtype=bool
     )
+
+    # Note(Nathan): relaxing title_max_word_length to 20 and sentence_min_length to 10
+    #   when evaluating is_possible_title for strings in title_max_word_length_relaxed
+    title_constraints_relaxed_idxs = [i for (i, el) in enumerate(elements) if el.text in title_constraints_relaxed]
+    title_constraints_relaxed_values = [
+        is_possible_title(elements[i].text, title_max_word_length=20, sentence_min_length=10, non_alpha_threshold=0.1, language="")
+        for i in title_constraints_relaxed_idxs]
+    is_title[title_constraints_relaxed_idxs] = title_constraints_relaxed_values
+    
     title_locs = np.arange(len(is_title)).astype(np.float32)[is_title].reshape(-1, 1)
     return title_locs
 

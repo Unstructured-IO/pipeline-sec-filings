@@ -232,7 +232,7 @@ typing-extensions==4.5.0
     #   mypy
     #   pydantic
     #   starlette
-unstructured==0.4.4
+unstructured==0.4.8
     # via -r requirements/base.in
 unstructured-api-tools==0.4.9
     # via -r requirements/base.in
