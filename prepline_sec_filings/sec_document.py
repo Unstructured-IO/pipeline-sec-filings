@@ -17,7 +17,6 @@ from unstructured.cleaners.core import clean
 from unstructured.documents.elements import Text, ListItem, NarrativeText, Title, Element
 from unstructured.documents.html import HTMLDocument
 from unstructured.nlp.partition import is_possible_title
-from unstructured.partition.text_type import sentence_count
 from prepline_sec_filings.sections import SECSection
 
 VALID_FILING_TYPES: Final[List[str]] = [
@@ -38,22 +37,28 @@ ITEM_TITLE_RE = re.compile(r"(?i)item \d{1,3}(?:[a-z]|\([a-z]\))?(?:\.)?(?::)?")
 clean_sec_text = partial(clean, extra_whitespace=True, dashes=True, trailing_punctuation=True)
 
 # Note(Nathan): These strings are titles from brks 10-Q, nks 10-K, bj S-1 forms,
-#   which is_possible_title returned false due to 
+#   which is_possible_title returned false due to
 #   i) their word length being longer than title_max_word_length
 #   ii) small sentence_min_length value, and
 #   iii) low non_alpha_threshold,
 #   so we want to relax this constraint when evaluating these strings only.
 title_constraints_relaxed = [
     "Consolidated Balance Sheets as of March 31, 2021 (unaudited) and September 30, 2020",
-    "Consolidated Statements of Operations for the three and six months ended March 31, 2021 and 2020 (unaudited)",
-    "Consolidated Statements of Comprehensive Income for the three and six months ended March 31, 2021 and 2020 (unaudited)",
-    "Consolidated Statements of Cash Flows for the six months ended March 31, 2021 and 2020 (unaudited)",
-    "Consolidated Statements of Changes in Stockholders Equity for the three and six months ended March 31, 2021 and 2020 (unaudited)",
+    "Consolidated Statements of Operations for the three and six months "
+    + "ended March 31, 2021 and 2020 (unaudited)",
+    "Consolidated Statements of Comprehensive Income for the three and six months "
+    + "ended March 31, 2021 and 2020 (unaudited)",
+    "Consolidated Statements of Cash Flows for the six months "
+    + "ended March 31, 2021 and 2020 (unaudited)",
+    "Consolidated Statements of Changes in Stockholders Equity for the three and six months "
+    + "ended March 31, 2021 and 2020 (unaudited)",
     "Notes to Consolidated Financial Statements (unaudited)",
     "Item 2. Management’s Discussion and Analysis of Financial Condition and Results of Operations",
-    "Market for Registrant's Common Equity, Related Stockholder Matters and Issuer Purchases of Equity Securities",
-    "F-1"
+    "Market for Registrant's Common Equity, Related Stockholder Matters "
+    + "and Issuer Purchases of Equity Securities",
+    "F-1",
 ]
+
 
 def _raise_for_invalid_filing_type(filing_type: Optional[str]):
     if not filing_type:
@@ -68,7 +73,10 @@ class SECDocument(HTMLDocument):
     def _filter_table_of_contents(self, elements: List[Text]) -> List[Text]:
         """Filter out unnecessary elements in the table of contents using keyword search."""
         elements = [
-            el for el in elements if isinstance(el, (Title, NarrativeText, Text))
+            el
+            for el in elements
+            if isinstance(el, (Title, NarrativeText))
+            or (isinstance(el, Text) and not el.text.isnumeric())
         ]
         if self.filing_type in REPORT_TYPES:
             # NOTE(yuming): Narrow TOC as all elements within
@@ -200,7 +208,6 @@ class SECDocument(HTMLDocument):
         toc = self.get_table_of_contents()
         if not toc.pages:
             return self.get_section_narrative_no_toc(section)
-
         # Note(yuming): section_toc is the section title in TOC,
         # next_section_toc is the section title right after section_toc in TOC
         section_toc, next_section_toc = self._get_toc_sections(section, toc)
@@ -241,7 +248,6 @@ class SECDocument(HTMLDocument):
             # NOTE(yuming): returns everything up to the next Title element
             # to avoid the worst case of returning the entire doc.
             return get_narrative_texts(doc_after_section_heading, up_to_next_title=True)
-
         return get_narrative_texts(doc_after_section_heading.before_element(section_end_element))
 
     def get_risk_narrative(self) -> List[NarrativeText]:
@@ -294,15 +300,13 @@ def get_narrative_texts(doc: HTMLDocument, up_to_next_title: Optional[bool] = Fa
     if up_to_next_title:
         narrative_texts = []
         for el in doc.elements:
-            if isinstance(el, NarrativeText) or isinstance(el, ListItem):
+            if isinstance(el, (NarrativeText, ListItem)):
                 narrative_texts.append(el)
             else:
                 break
         return narrative_texts
     else:
-        return [
-            el for el in doc.elements if isinstance(el, NarrativeText) or isinstance(el, ListItem)
-        ]
+        return [el for el in doc.elements if isinstance(el, (NarrativeText, ListItem))]
 
 
 def is_section_elem(section: SECSection, elem: Text, filing_type: Optional[str]) -> bool:
@@ -377,12 +381,21 @@ def to_sklearn_format(elements: List[Element]) -> npt.NDArray[np.float32]:
 
     # Note(Nathan): relaxing title_max_word_length to 20 and sentence_min_length to 10
     #   when evaluating is_possible_title for strings in title_max_word_length_relaxed
-    title_constraints_relaxed_idxs = [i for (i, el) in enumerate(elements) if el.text in title_constraints_relaxed]
+    title_constraints_relaxed_idxs = [
+        i for (i, el) in enumerate(elements) if el.text in title_constraints_relaxed
+    ]
     title_constraints_relaxed_values = [
-        is_possible_title(elements[i].text, title_max_word_length=20, sentence_min_length=10, non_alpha_threshold=0.1, language="")
-        for i in title_constraints_relaxed_idxs]
+        is_possible_title(
+            elements[i].text,
+            title_max_word_length=20,
+            sentence_min_length=10,
+            non_alpha_threshold=0.1,
+            language="",
+        )
+        for i in title_constraints_relaxed_idxs
+    ]
     is_title[title_constraints_relaxed_idxs] = title_constraints_relaxed_values
-    
+
     title_locs = np.arange(len(is_title)).astype(np.float32)[is_title].reshape(-1, 1)
     return title_locs
 

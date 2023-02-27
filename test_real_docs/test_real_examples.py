@@ -12,6 +12,7 @@ from prepline_sec_filings.sections import SECSection, section_string_to_enum
 DIRECTORY = Path(__file__).absolute().parent
 
 RISK_FACTOR_XFAILS = ["aig", "bgs"]
+FIRST_LAST_XFAILS = ["bj"]
 
 
 with open(os.path.join("test_utils", "examples.json")) as f:
@@ -128,6 +129,10 @@ def test_samples_found(ticker, risk_samples, doc_elements):
 def test_first_last(ticker, doc_elements, section, first_or_last, xfail):
     if xfail:
         pytest.xfail()
+    if ticker in FIRST_LAST_XFAILS:
+        pytest.xfail(
+            reason="The section we're looking for is not in self.elements in the first place."
+        )
     doc, _ = doc_elements
     parsed_risk_narratives = doc.get_section_narrative(section)
     sample = sample_first_last[ticker][section.name][first_or_last]
