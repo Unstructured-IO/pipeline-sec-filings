@@ -32,7 +32,7 @@ click==8.1.3
     #   black
 comm==0.1.2
     # via ipykernel
-coverage[toml]==7.2.0
+coverage[toml]==7.2.1
     # via pytest-cov
 debugpy==1.6.6
     # via ipykernel
@@ -69,7 +69,7 @@ iniconfig==2.0.0
     # via pytest
 ipykernel==6.21.2
     # via -r requirements/test.in
-ipython==8.10.0
+ipython==8.11.0
     # via
     #   execnb
     #   ipykernel
@@ -119,7 +119,7 @@ platformdirs==3.0.0
     #   jupyter-core
 pluggy==1.0.0
     # via pytest
-prompt-toolkit==3.0.37
+prompt-toolkit==3.0.38
     # via ipython
 psutil==5.9.4
     # via ipykernel
@@ -181,13 +181,13 @@ typing-extensions==4.5.0
     # via
     #   black
     #   mypy
-watchdog==2.3.0
+watchdog==2.3.1
     # via nbdev
 wcwidth==0.2.6
     # via prompt-toolkit
 wheel==0.38.4
     # via astunparse
-zipp==3.14.0
+zipp==3.15.0
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:

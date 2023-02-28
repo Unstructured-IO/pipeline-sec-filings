@@ -49,7 +49,7 @@ defusedxml==0.7.1
     # via nbconvert
 executing==1.2.0
     # via stack-data
-fastjsonschema==2.16.2
+fastjsonschema==2.16.3
     # via nbformat
 flake8==6.0.0
     # via -r requirements/dev.in
@@ -113,7 +113,7 @@ jupyter-client==8.0.3
     #   nbclient
     #   notebook
     #   qtconsole
-jupyter-console==6.6.1
+jupyter-console==6.6.2
     # via jupyter
 jupyter-core==5.2.0
     # via
@@ -215,7 +215,7 @@ prometheus-client==0.16.0
     #   jupyter-server
     #   nbclassic
     #   notebook
-prompt-toolkit==3.0.37
+prompt-toolkit==3.0.38
     # via
     #   ipython
     #   jupyter-console
@@ -349,7 +349,7 @@ wheel==0.38.4
     # via pip-tools
 widgetsnbextension==4.0.5
     # via ipywidgets
-zipp==3.14.0
+zipp==3.15.0
     # via
     #   importlib-metadata
     #   importlib-resources
