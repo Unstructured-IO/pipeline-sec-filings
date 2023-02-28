@@ -76,6 +76,7 @@ class SECDocument(HTMLDocument):
             el
             for el in elements
             if isinstance(el, (Title, NarrativeText))
+            or (isinstance(el, Text) and not el.text.isnumeric())
         ]
         if self.filing_type in REPORT_TYPES:
             # NOTE(yuming): Narrow TOC as all elements within
