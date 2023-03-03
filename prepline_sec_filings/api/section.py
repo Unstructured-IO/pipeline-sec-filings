@@ -155,7 +155,9 @@ def pipeline_api(
         else:
             m_section = [enum.name for enum in SECTIONS_S1]
     for section in m_section:
-        results[section] = sec_document.get_section_narrative(section_string_to_enum[section])
+        results[section] = sec_document.get_section_narrative(
+            section_string_to_enum[section]
+        )
     for i, section_regex in enumerate(m_section_regex):
         regex_enum = get_regex_enum(section_regex)
         with timeout(seconds=5):
