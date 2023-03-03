@@ -189,7 +189,7 @@ check-version:
 ## check-notebooks:             check that executing and cleaning notebooks doesn't produce changes
 .PHONY: check-notebooks
 check-notebooks:
-	export UNSTRUCTURED_LANGUAGE=not_english scripts/check-and-format-notebooks.py --check
+	UNSTRUCTURED_LANGUAGE=not_english scripts/check-and-format-notebooks.py --check
 
 ## tidy:                        run black
 .PHONY: tidy
