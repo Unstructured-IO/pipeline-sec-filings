@@ -26,6 +26,7 @@ USER ${NB_USER}
 WORKDIR ${HOME}
 ENV PYTHONPATH="${PYTHONPATH}:${HOME}"
 ENV PATH="/home/${NB_USER}/.local/bin:${PATH}"
+ENV UNSTRUCTURED_LANGUAGE not_english
 
 COPY requirements/dev.txt requirements-dev.txt
 COPY requirements/base.txt requirements-base.txt

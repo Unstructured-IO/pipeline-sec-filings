@@ -35,7 +35,7 @@ install-test:
 	pip install -r requirements/test.txt
 
 .PHONY: install-dev
-install-dev:
+install-dev: install-ipython-kernel
 	pip install -r requirements/dev.txt
 
 .PHONY: install-ipython-kernel
@@ -95,12 +95,12 @@ docker-start-jupyter:
 ## run-jupyter:                 starts jupyter notebook
 .PHONY: run-jupyter
 run-jupyter:
-	PYTHONPATH=$(realpath .) JUPYTER_PATH=$(realpath .) jupyter-notebook --NotebookApp.token='' --NotebookApp.password=''
+	UNSTRUCTURED_LANGUAGE=not_english PYTHONPATH=$(realpath .) JUPYTER_PATH=$(realpath .) jupyter-notebook --NotebookApp.token='' --NotebookApp.password=''
 
 ## run-web-app:                 runs the FastAPI api with hot reloading
 .PHONY: run-web-app
 run-web-app:
-	 PYTHONPATH=. uvicorn ${PACKAGE_NAME}.api.app:app --reload
+	UNSTRUCTURED_LANGUAGE=not_english  PYTHONPATH=. uvicorn ${PACKAGE_NAME}.api.app:app --reload
 
 
 #################
@@ -110,7 +110,7 @@ run-web-app:
 ## test:                        runs core tests
 .PHONY: test
 test:
-	PYTHONPATH=. pytest test_${PIPELINE_PACKAGE} --cov=${PACKAGE_NAME} --cov-report term-missing
+	UNSTRUCTURED_LANGUAGE=not_english PYTHONPATH=. pytest test_${PIPELINE_PACKAGE} --cov=${PACKAGE_NAME} --cov-report term-missing
 
 .PHONY: check-coverage
 check-coverage:
@@ -119,7 +119,7 @@ check-coverage:
 ## test-integration:            runs integration tests
 .PHONY: test-integration
 test-integration:
-	PYTHONPATH=. pytest test_${PIPELINE_PACKAGE}_integration
+	UNSTRUCTURED_LANGUAGE=not_english PYTHONPATH=. pytest test_${PIPELINE_PACKAGE}_integration
 
 ## test-sample-docs:            runs the pipeline on a set of sample SEC documents
 .PHONY: test-sample-docs
@@ -189,7 +189,7 @@ check-version:
 ## check-notebooks:             check that executing and cleaning notebooks doesn't produce changes
 .PHONY: check-notebooks
 check-notebooks:
-	scripts/check-and-format-notebooks.py --check
+	export UNSTRUCTURED_LANGUAGE=not_english scripts/check-and-format-notebooks.py --check
 
 ## tidy:                        run black
 .PHONY: tidy
@@ -203,7 +203,7 @@ tidy:
 ## tidy-notebooks:	             execute notebooks and remove metadata
 .PHONY: tidy-notebooks
 tidy-notebooks:
-	scripts/check-and-format-notebooks.py
+	UNSTRUCTURED_LANGUAGE=not_english scripts/check-and-format-notebooks.py
 
 ## version-sync:                update references to version with most recent version from CHANGELOG.md
 .PHONY: version-sync
