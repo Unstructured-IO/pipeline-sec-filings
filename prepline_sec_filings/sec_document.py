@@ -44,18 +44,18 @@ clean_sec_text = partial(clean, extra_whitespace=True, dashes=True, trailing_pun
 #   so we want to relax this constraint when evaluating these strings only.
 title_constraints_relaxed = [
     "Consolidated Balance Sheets as of March 31, 2021 (unaudited) and September 30, 2020",
-    "Consolidated Statements of Operations for the three and six months "
-    + "ended March 31, 2021 and 2020 (unaudited)",
-    "Consolidated Statements of Comprehensive Income for the three and six months "
-    + "ended March 31, 2021 and 2020 (unaudited)",
-    "Consolidated Statements of Cash Flows for the six months "
-    + "ended March 31, 2021 and 2020 (unaudited)",
-    "Consolidated Statements of Changes in Stockholders Equity for the three and six months "
-    + "ended March 31, 2021 and 2020 (unaudited)",
+    "Consolidated Statements of Operations for the three and six months \
+        ended March 31, 2021 and 2020 (unaudited)",
+    "Consolidated Statements of Comprehensive Income for the three and six months \
+        ended March 31, 2021 and 2020 (unaudited)",
+    "Consolidated Statements of Cash Flows for the six months \
+        ended March 31, 2021 and 2020 (unaudited)",
+    "Consolidated Statements of Changes in Stockholders Equity for the three and six months \
+        ended March 31, 2021 and 2020 (unaudited)",
     "Notes to Consolidated Financial Statements (unaudited)",
     "Item 2. Management’s Discussion and Analysis of Financial Condition and Results of Operations",
-    "Market for Registrant's Common Equity, Related Stockholder Matters "
-    + "and Issuer Purchases of Equity Securities",
+    "Market for Registrant's Common Equity, Related Stockholder Matters \
+        and Issuer Purchases of Equity Securities",
     "F-1",
 ]
 
