@@ -53,6 +53,7 @@ def is_expected_response_type(media_type, response_type):
         return False
 
 
+# pipeline-api
 class timeout:
     def __init__(self, seconds=1, error_message="Timeout"):
         self.seconds = seconds
