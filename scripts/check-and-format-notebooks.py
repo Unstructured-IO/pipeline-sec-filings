@@ -91,6 +91,7 @@ if __name__ == "__main__":
     nonmatching_nbs = []
     fns = notebooks if notebooks else nb_paths(root_path)
     for fn in fns:
+        print(f"{'checking' if check else 'processing'} {fn}")
         nb = read_notebook(fn)
         modified_nb = deepcopy(nb)
         process_nb(modified_nb, root_path)
