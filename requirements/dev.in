@@ -4,7 +4,7 @@ jupyter
 mypy
 pip-tools
 # NOTE(crag): consistency with unstructured-api-tools. pinned for a reason, see there.
-ipython==8.8.0
+ipython==8.12.0
 
 # NOTE(robinson) - Required pins for security scans
 jupyter-core>=4.11.2
