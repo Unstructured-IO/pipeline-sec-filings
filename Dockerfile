@@ -27,6 +27,7 @@ WORKDIR ${HOME}
 ENV PYTHONPATH="${PYTHONPATH}:${HOME}"
 ENV PATH="/home/${NB_USER}/.local/bin:${PATH}"
 
+COPY logger_config.yaml logger_config.yaml
 COPY requirements/dev.txt requirements-dev.txt
 COPY requirements/base.txt requirements-base.txt
 COPY prepline_${PIPELINE_PACKAGE}/ prepline_${PIPELINE_PACKAGE}/
