@@ -53,7 +53,6 @@ def test_section_narrative_api(form_type, section, tmpdir):
         f.write(sample_document)
 
     # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
-    app.state.limiter.reset()
     client = TestClient(app)
     response = client.post(
         SECTION_ROUTE,
@@ -94,7 +93,6 @@ def test_section_narrative_api_labelstudio(form_type, section, tmpdir):
         f.write(sample_document)
 
     # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
-    app.state.limiter.reset()
     client = TestClient(app)
     response = client.post(
         SECTION_ROUTE,
@@ -138,7 +136,6 @@ def test_section_narrative_api_with_unsupported_response_schema(form_type, secti
         f.write(sample_document)
 
     # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
-    app.state.limiter.reset()
     client = TestClient(app)
 
     # FIXME(nyoon): need to handle ValueError in a better way in unstructured-api-tools
@@ -167,7 +164,6 @@ def test_section_narrative_api_with_custom_regex(form_type, tmpdir):
         f.write(sample_document)
 
     # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
-    app.state.limiter.reset()
     client = TestClient(app)
     response = client.post(
         SECTION_ROUTE,
@@ -205,7 +201,6 @@ def test_section_narrative_api_with_custom_regex_with_special_chars(form_type, t
         f.write(sample_document)
 
     # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
-    app.state.limiter.reset()
     client = TestClient(app)
     response = client.post(
         SECTION_ROUTE,
@@ -241,7 +236,6 @@ def test_section_narrative_api_with_multiple_uploads(form_types, section, tmpdir
         filenames.append(filename)
 
     # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
-    app.state.limiter.reset()
     client = TestClient(app)
     files = [
         ("text_files", (filename, open(filename, "rb"), "text/plain")) for filename in filenames
@@ -300,7 +294,6 @@ def test_section_narrative_api_with_headers(
         filenames.append(filename)
 
     # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
-    app.state.limiter.reset()
     client = TestClient(app)
     files = [
         ("text_files", (filename, open(filename, "rb"), "text/plain")) for filename in filenames
@@ -335,7 +328,6 @@ def test_section_narrative_api_csv_response(form_type, response_type, section, t
         f.write(sample_document)
 
     # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
-    app.state.limiter.reset()
     client = TestClient(app)
     response = client.post(
         SECTION_ROUTE,
@@ -372,7 +364,6 @@ def test_section_narrative_api_csv_response_with_unsupported_response_schema(
         f.write(sample_document)
 
     # NOTE(robinson) - Reset the rate limit to avoid 429s in tests
-    app.state.limiter.reset()
     client = TestClient(app)
 
     # FIXME(nyoon): need to handle ValueError in a better way in unstructured-api-tools
@@ -388,13 +379,6 @@ def test_section_narrative_api_csv_response_with_unsupported_response_schema(
         )
         assert response.status_code == 406
         assert response.content == "Unsupported response schema unsupported.\n"
-
-
-def test_section_narrative_api_health_check():
-    client = TestClient(app)
-    response = client.get("/healthcheck")
-
-    assert response.status_code == 200
 
 
 def test_core_app_health_check():
