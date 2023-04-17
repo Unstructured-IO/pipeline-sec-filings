@@ -1,4 +1,4 @@
-from itertools import product
+from itertools import product, combinations
 import pytest
 
 from unstructured.documents.base import NarrativeText
@@ -17,7 +17,7 @@ from prepline_sec_filings.sec_document import (
     remove_item_from_section_text,
     get_narrative_texts,
 )
-from prepline_sec_filings.sections import SECSection
+from prepline_sec_filings.sections import SECSection, ALL_SECTIONS, validate_section_names
 
 
 @pytest.fixture
@@ -399,3 +399,26 @@ def test_get_element_by_title(elements, title, filing_type, expected):
 def test_doc_after_cleaners_keeps_filing_type(form_type, sample_document):
     sec_document = SECDocument.from_string(sample_document).doc_after_cleaners()
     assert sec_document.filing_type == form_type
+
+
+@pytest.mark.parametrize(
+    "section_names",
+    [
+        [section.name for section in combo]
+        for i in range(1, 3)
+        for combo in combinations(SECSection, i)
+    ]
+    + [[ALL_SECTIONS]],
+)
+def test_validate_section_names(section_names):
+    assert validate_section_names(section_names) is None
+
+
+def test_validate_section_names_raises_for_nonsingleton_all():
+    with pytest.raises(ValueError):
+        validate_section_names([ALL_SECTIONS, SECSection.ABOUT_PROSPECTUS])
+
+
+def test_validate_section_names_raises_for_invalid_section():
+    with pytest.raises(ValueError):
+        validate_section_names(["invalidsection"])

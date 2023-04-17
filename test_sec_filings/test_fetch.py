@@ -196,3 +196,62 @@ def test_open_form_by_ticker(monkeypatch, form_type, expected):
 def test_open_form(monkeypatch, cik, acc_num, expected):
     fetch.open_form(cik, acc_num)
     webbrowser.open_new_tab.assert_called_once_with(expected)
+
+
+@pytest.mark.parametrize(
+    "formtype, expected_cid, expected_acc_num",
+    [
+        (
+            "10-K",
+            "1234567890",
+            "123456789012345678",
+        ),
+        (
+            "10-Q",
+            "1234567890",
+            "123456789012345681",
+        ),
+        (
+            "S-1",
+            "1234567890",
+            "123456789012345679",
+        ),
+    ],
+)
+def test_get_recent_cik_and_acc_by_ticker(monkeypatch, formtype, expected_cid, expected_acc_num):
+    monkeypatch.setattr(requests, "Session", MockSession)
+    cik, acc_num, retrieved_form_type = fetch.get_recent_cik_and_acc_by_ticker(
+        "noice", formtype, "Giant", "parker@giant.com"
+    )
+    assert cik == expected_cid
+    assert acc_num == expected_acc_num
+    assert retrieved_form_type == formtype
+
+
+@pytest.mark.parametrize(
+    "formtype, cid, expected_acc_num",
+    [
+        (
+            "10-K",
+            "1234567890",
+            "123456789012345678",
+        ),
+        (
+            "10-Q",
+            "1234567890",
+            "123456789012345681",
+        ),
+        (
+            "S-1",
+            "1234567890",
+            "123456789012345679",
+        ),
+    ],
+)
+def test_get_recent_acc_by_cik(monkeypatch, formtype, cid, expected_acc_num):
+    monkeypatch.setattr(requests, "Session", MockSession)
+    acc_num, recvd_formtype = fetch.get_recent_acc_by_cik(
+        cid, formtype, "Giant", "parker@giant.com"
+    )
+    assert acc_num == expected_acc_num
+    assert recvd_formtype == formtype
