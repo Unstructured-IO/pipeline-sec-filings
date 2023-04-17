@@ -3,15 +3,25 @@
 # DO NOT MODIFY DIRECTLY
 #####################################################################
 
+import io
 import os
+import gzip
+import mimetypes
 from typing import List, Union
-from fastapi import status, FastAPI, File, Form, Request, UploadFile, APIRouter
-from slowapi.errors import RateLimitExceeded
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
+from fastapi import (
+    status,
+    FastAPI,
+    File,
+    Form,
+    Request,
+    UploadFile,
+    APIRouter,
+    HTTPException,
+)
 from fastapi.responses import PlainTextResponse
 import json
 from fastapi.responses import StreamingResponse
+from starlette.datastructures import Headers
 from starlette.types import Send
 from base64 import b64encode
 from typing import Optional, Mapping, Iterator, Tuple
@@ -36,20 +46,14 @@ from prepline_sec_filings.sections import (
     SECTIONS_10Q,
     SECTIONS_S1,
 )
-import io
 import csv
 from typing import Dict
 from unstructured.documents.elements import Text, NarrativeText, Title, ListItem
 from unstructured.staging.label_studio import stage_for_label_studio
 
 
-limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 router = APIRouter()
-
-RATE_LIMIT = os.environ.get("PIPELINE_API_RATE_LIMIT", "1/second")
 
 
 def is_expected_response_type(media_type, response_type):
@@ -188,6 +192,36 @@ def pipeline_api(
         raise ValueError(f"response_type '{response_type}' is not supported")
 
 
+def get_validated_mimetype(file):
+    """
+    Return a file's mimetype, either via the file.content_type or the mimetypes lib if that's too
+    generic. If the user has set UNSTRUCTURED_ALLOWED_MIMETYPES, validate against this list and
+    return HTTP 400 for an invalid type.
+    """
+    content_type = file.content_type
+    if not content_type or content_type == "application/octet-stream":
+        content_type = mimetypes.guess_type(str(file.filename))[0]
+
+        # Markdown mimetype is too new for the library - just hardcode that one in for now
+        if not content_type and ".md" in file.filename:
+            content_type = "text/markdown"
+
+    allowed_mimetypes_str = os.environ.get("UNSTRUCTURED_ALLOWED_MIMETYPES")
+    if allowed_mimetypes_str is not None:
+        allowed_mimetypes = allowed_mimetypes_str.split(",")
+
+        if content_type not in allowed_mimetypes:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    f"Unable to process {file.filename}: "
+                    f"File type {content_type} is not supported."
+                ),
+            )
+
+    return content_type
+
+
 class MultipartMixedResponse(StreamingResponse):
     CRLF = b"\r\n"
 
@@ -246,9 +280,20 @@ class MultipartMixedResponse(StreamingResponse):
         await send({"type": "http.response.body", "body": b"", "more_body": False})
 
 
+def ungz_file(file: UploadFile) -> UploadFile:
+    filename = str(file.filename) if file.filename else ""
+    gzip_file = gzip.open(file.file)
+    return UploadFile(
+        file=io.BytesIO(gzip_file.read()),
+        size=len(gzip_file.read()),
+        filename=filename[:-3] if len(filename) > 3 else "",
+        headers=Headers({"content-type": str(mimetypes.guess_type(filename)[0])}),
+    )
+
+
+@router.post("/sec-filings/v0/section")
 @router.post("/sec-filings/v0.2.1/section")
-@limiter.limit(RATE_LIMIT)
-async def pipeline_1(
+def pipeline_1(
     request: Request,
     text_files: Union[List[UploadFile], None] = File(default=None),
     output_format: Union[str, None] = Form(default=None),
@@ -256,6 +301,11 @@ async def pipeline_1(
     section: List[str] = Form(default=[]),
     section_regex: List[str] = Form(default=[]),
 ):
+    if text_files:
+        for file_index in range(len(text_files)):
+            if text_files[file_index].content_type == "application/gzip":
+                text_files[file_index] = ungz_file(text_files[file_index])
+
     content_type = request.headers.get("Accept")
 
     default_response_type = output_format or "application/json"
@@ -283,6 +333,8 @@ async def pipeline_1(
 
             def response_generator(is_multipart):
                 for file in text_files:
+                    get_validated_mimetype(file)
+
                     text = file.file.read().decode("utf-8")
 
                     response = pipeline_api(
@@ -337,11 +389,6 @@ async def pipeline_1(
             content='Request parameter "text_files" is required.\n',
             status_code=status.HTTP_400_BAD_REQUEST,
         )
-
-
-@app.get("/healthcheck", status_code=status.HTTP_200_OK)
-async def healthcheck(request: Request):
-    return {"healthcheck": "HEALTHCHECK STATUS: EVERYTHING OK!"}
 
 
 app.include_router(router)
