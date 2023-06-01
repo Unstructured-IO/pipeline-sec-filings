@@ -1,4 +1,4 @@
-unstructured==0.7.1
+unstructured==0.2.5
 unstructured_api_tools>=0.10.6
 
 ratelimit
