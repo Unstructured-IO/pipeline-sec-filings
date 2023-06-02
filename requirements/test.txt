@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements/test.in
 #
-anyio==3.6.2
+anyio==3.7.0
     # via httpcore
 appnope==0.1.3
     # via
@@ -20,7 +20,7 @@ backcall==0.2.0
     # via ipython
 black==23.3.0
     # via -r requirements/test.in
-certifi==2022.12.7
+certifi==2023.5.7
     # via
     #   httpcore
     #   httpx
@@ -30,14 +30,16 @@ click==8.1.3
     #   black
 comm==0.1.3
     # via ipykernel
-coverage[toml]==7.2.3
+coverage[toml]==7.2.7
     # via pytest-cov
 debugpy==1.6.7
     # via ipykernel
 decorator==5.1.1
     # via ipython
 exceptiongroup==1.1.1
-    # via pytest
+    # via
+    #   anyio
+    #   pytest
 execnb==0.1.5
     # via nbdev
 executing==1.2.0
@@ -53,21 +55,21 @@ ghapi==1.0.3
     # via nbdev
 h11==0.14.0
     # via httpcore
-httpcore==0.17.0
+httpcore==0.17.2
     # via httpx
-httpx==0.24.0
+httpx==0.24.1
     # via -r requirements/test.in
 idna==3.4
     # via
     #   anyio
     #   httpx
-importlib-metadata==6.3.0
+importlib-metadata==6.6.0
     # via jupyter-client
 iniconfig==2.0.0
     # via pytest
-ipykernel==6.22.0
+ipykernel==6.23.1
     # via -r requirements/test.in
-ipython==8.12.0
+ipython==8.12.2
     # via
     #   execnb
     #   ipykernel
@@ -86,7 +88,7 @@ matplotlib-inline==0.1.6
     #   ipython
 mccabe==0.7.0
     # via flake8
-mypy==1.2.0
+mypy==1.3.0
     # via -r requirements/test.in
 mypy-extensions==1.0.0
     # via
@@ -111,7 +113,7 @@ pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-platformdirs==3.2.0
+platformdirs==3.5.1
     # via
     #   black
     #   jupyter-core
@@ -119,7 +121,7 @@ pluggy==1.0.0
     # via pytest
 prompt-toolkit==3.0.38
     # via ipython
-psutil==5.9.4
+psutil==5.9.5
     # via ipykernel
 ptyprocess==0.7.0
     # via pexpect
@@ -129,17 +131,17 @@ pycodestyle==2.10.0
     # via flake8
 pyflakes==3.0.1
     # via flake8
-pygments==2.15.0
+pygments==2.15.1
     # via ipython
 pytest==7.3.1
     # via pytest-cov
-pytest-cov==4.0.0
+pytest-cov==4.1.0
     # via -r requirements/test.in
 python-dateutil==2.8.2
     # via jupyter-client
 pyyaml==6.0
     # via nbdev
-pyzmq==25.0.2
+pyzmq==25.1.0
     # via
     #   ipykernel
     #   jupyter-client
@@ -161,7 +163,7 @@ tomli==2.0.1
     #   coverage
     #   mypy
     #   pytest
-tornado==6.2
+tornado==6.3.2
     # via
     #   ipykernel
     #   jupyter-client
@@ -173,7 +175,7 @@ traitlets==5.9.0
     #   jupyter-client
     #   jupyter-core
     #   matplotlib-inline
-typing-extensions==4.5.0
+typing-extensions==4.6.2
     # via
     #   black
     #   ipython

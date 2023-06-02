@@ -8,16 +8,7 @@ import os
 import gzip
 import mimetypes
 from typing import List, Union
-from fastapi import (
-    status,
-    FastAPI,
-    File,
-    Form,
-    Request,
-    UploadFile,
-    APIRouter,
-    HTTPException,
-)
+from fastapi import status, FastAPI, File, Form, Request, UploadFile, APIRouter, HTTPException
 from fastapi.responses import PlainTextResponse
 import json
 from fastapi.responses import StreamingResponse
@@ -26,16 +17,8 @@ from starlette.types import Send
 from base64 import b64encode
 from typing import Optional, Mapping, Iterator, Tuple
 import secrets
-from prepline_sec_filings.sections import (
-    section_string_to_enum,
-    validate_section_names,
-    SECSection,
-)
-from prepline_sec_filings.sec_document import (
-    SECDocument,
-    REPORT_TYPES,
-    VALID_FILING_TYPES,
-)
+from prepline_sec_filings.sections import section_string_to_enum, validate_section_names, SECSection
+from prepline_sec_filings.sec_document import SECDocument, REPORT_TYPES, VALID_FILING_TYPES
 from enum import Enum
 import re
 import signal
@@ -130,11 +113,7 @@ ISD = "isd"
 
 
 def pipeline_api(
-    text,
-    response_type="application/json",
-    response_schema="isd",
-    m_section=[],
-    m_section_regex=[],
+    text, response_type="application/json", response_schema="isd", m_section=[], m_section_regex=[]
 ):
     """Many supported sections including: RISK_FACTORS, MANAGEMENT_DISCUSSION, and many more"""
     validate_section_names(m_section)
@@ -159,9 +138,7 @@ def pipeline_api(
         else:
             m_section = [enum.name for enum in SECTIONS_S1]
     for section in m_section:
-        results[section] = sec_document.get_section_narrative(
-            section_string_to_enum[section]
-        )
+        results[section] = sec_document.get_section_narrative(section_string_to_enum[section])
     for i, section_regex in enumerate(m_section_regex):
         regex_enum = get_regex_enum(section_regex)
         with timeout(seconds=5):
@@ -202,9 +179,12 @@ def get_validated_mimetype(file):
     if not content_type or content_type == "application/octet-stream":
         content_type = mimetypes.guess_type(str(file.filename))[0]
 
-        # Markdown mimetype is too new for the library - just hardcode that one in for now
-        if not content_type and ".md" in file.filename:
-            content_type = "text/markdown"
+        # Some filetypes missing for this library, just hardcode them for now
+        if not content_type:
+            if file.filename.endswith(".md"):
+                content_type = "text/markdown"
+            elif file.filename.endswith(".msg"):
+                content_type = "message/rfc822"
 
     allowed_mimetypes_str = os.environ.get("UNSTRUCTURED_ALLOWED_MIMETYPES")
     if allowed_mimetypes_str is not None:
@@ -247,10 +227,7 @@ class MultipartMixedResponse(StreamingResponse):
 
     def build_part(self, chunk: bytes) -> bytes:
         part = self.boundary + self.CRLF
-        part_headers = {
-            "Content-Length": len(chunk),
-            "Content-Transfer-Encoding": "base64",
-        }
+        part_headers = {"Content-Length": len(chunk), "Content-Transfer-Encoding": "base64"}
         if self.content_type is not None:
             part_headers["Content-Type"] = self.content_type
         part += self._build_part_headers(part_headers)
@@ -270,24 +247,29 @@ class MultipartMixedResponse(StreamingResponse):
                 chunk = chunk.encode(self.charset)
                 chunk = b64encode(chunk)
             await send(
-                {
-                    "type": "http.response.body",
-                    "body": self.build_part(chunk),
-                    "more_body": True,
-                }
+                {"type": "http.response.body", "body": self.build_part(chunk), "more_body": True}
             )
 
         await send({"type": "http.response.body", "body": b"", "more_body": False})
 
 
-def ungz_file(file: UploadFile) -> UploadFile:
+def ungz_file(file: UploadFile, gz_uncompressed_content_type=None) -> UploadFile:
+    def return_content_type(filename):
+        if gz_uncompressed_content_type:
+            return gz_uncompressed_content_type
+        else:
+            return str(mimetypes.guess_type(filename)[0])
+
     filename = str(file.filename) if file.filename else ""
-    gzip_file = gzip.open(file.file)
+    if filename.endswith(".gz"):
+        filename = filename[:-3]
+
+    gzip_file = gzip.open(file.file).read()
     return UploadFile(
-        file=io.BytesIO(gzip_file.read()),
-        size=len(gzip_file.read()),
-        filename=filename[:-3] if len(filename) > 3 else "",
-        headers=Headers({"content-type": str(mimetypes.guess_type(filename)[0])}),
+        file=io.BytesIO(gzip_file),
+        size=len(gzip_file),
+        filename=filename,
+        headers=Headers({"content-type": return_content_type(filename)}),
     )
 
 
@@ -295,6 +277,7 @@ def ungz_file(file: UploadFile) -> UploadFile:
 @router.post("/sec-filings/v0.2.1/section")
 def pipeline_1(
     request: Request,
+    gz_uncompressed_content_type: Optional[str] = Form(default=None),
     text_files: Union[List[UploadFile], None] = File(default=None),
     output_format: Union[str, None] = Form(default=None),
     output_schema: str = Form(default=None),
@@ -318,75 +301,63 @@ def pipeline_1(
 
     if isinstance(text_files, list) and len(text_files):
         if len(text_files) > 1:
-            if content_type and content_type not in [
-                "*/*",
-                "multipart/mixed",
-                "application/json",
-            ]:
-                return PlainTextResponse(
-                    content=(
+            if content_type and content_type not in ["*/*", "multipart/mixed", "application/json"]:
+                raise HTTPException(
+                    detail=(
                         f"Conflict in media type {content_type}"
                         ' with response type "multipart/mixed".\n'
                     ),
                     status_code=status.HTTP_406_NOT_ACCEPTABLE,
                 )
 
-            def response_generator(is_multipart):
-                for file in text_files:
-                    get_validated_mimetype(file)
+        def response_generator(is_multipart):
+            for file in text_files:
+                get_validated_mimetype(file)
 
-                    text = file.file.read().decode("utf-8")
+                text = file.file.read().decode("utf-8")
 
-                    response = pipeline_api(
-                        text,
-                        m_section=section,
-                        m_section_regex=section_regex,
-                        response_type=media_type,
-                        response_schema=default_response_schema,
+                response = pipeline_api(
+                    text,
+                    m_section=section,
+                    m_section_regex=section_regex,
+                    response_type=media_type,
+                    response_schema=default_response_schema,
+                )
+
+                if is_expected_response_type(media_type, type(response)):
+                    raise HTTPException(
+                        detail=(
+                            f"Conflict in media type {media_type}"
+                            f" with response type {type(response)}.\n"
+                        ),
+                        status_code=status.HTTP_406_NOT_ACCEPTABLE,
                     )
+
+                valid_response_types = ["application/json", "text/csv", "*/*", "multipart/mixed"]
+                if media_type in valid_response_types:
                     if is_multipart:
                         if type(response) not in [str, bytes]:
                             response = json.dumps(response)
                     yield response
+                else:
+                    raise HTTPException(
+                        detail=f"Unsupported media type {media_type}.\n",
+                        status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                    )
 
-            if content_type == "multipart/mixed":
-                return MultipartMixedResponse(
-                    response_generator(is_multipart=True), content_type=media_type
-                )
-            else:
-                return response_generator(is_multipart=False)
-        else:
-            text_file = text_files[0]
-            text = text_file.file.read().decode("utf-8")
-
-            response = pipeline_api(
-                text,
-                m_section=section,
-                m_section_regex=section_regex,
-                response_type=media_type,
-                response_schema=default_response_schema,
+        if content_type == "multipart/mixed":
+            return MultipartMixedResponse(
+                response_generator(is_multipart=True), content_type=media_type
             )
-
-            if is_expected_response_type(media_type, type(response)):
-                return PlainTextResponse(
-                    content=(
-                        f"Conflict in media type {media_type}"
-                        f" with response type {type(response)}.\n"
-                    ),
-                    status_code=status.HTTP_406_NOT_ACCEPTABLE,
-                )
-            valid_response_types = ["application/json", "text/csv", "*/*"]
-            if media_type in valid_response_types:
-                return response
-            else:
-                return PlainTextResponse(
-                    content=f"Unsupported media type {media_type}.\n",
-                    status_code=status.HTTP_406_NOT_ACCEPTABLE,
-                )
-
+        else:
+            return (
+                list(response_generator(is_multipart=False))[0]
+                if len(text_files) == 1
+                else response_generator(is_multipart=False)
+            )
     else:
-        return PlainTextResponse(
-            content='Request parameter "text_files" is required.\n',
+        raise HTTPException(
+            detail='Request parameter "text_files" is required.\n',
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
