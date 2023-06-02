@@ -8,3 +8,7 @@ scikit-learn
 
 # NOTE(robinson) - Required pins for security scans
 jupyter-core>=5.3.0
+
+# We need newer versions of these for deps
+traitlets>=5.6.0
+packaging>=22.0

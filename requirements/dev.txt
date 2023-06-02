@@ -334,7 +334,7 @@ traitlets==5.9.0
     #   nbformat
     #   notebook
     #   qtconsole
-typing-extensions==4.6.2
+typing-extensions==4.6.3
     # via
     #   black
     #   mypy
