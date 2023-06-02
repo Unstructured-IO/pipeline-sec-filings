@@ -175,7 +175,7 @@ traitlets==5.9.0
     #   jupyter-client
     #   jupyter-core
     #   matplotlib-inline
-typing-extensions==4.6.2
+typing-extensions==4.6.3
     # via
     #   black
     #   ipython
