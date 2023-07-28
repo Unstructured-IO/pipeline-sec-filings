@@ -9,8 +9,6 @@
 
 This repo implements a document pre-processing pipeline for SEC filings. Currently, the pipeline is capable of extracting narrative text from user-specified sections in 10-K, 10-Q, and S-1 filings.
 
-The API is hosted at `https://api.unstructured.io`.
-
 ## Developer Quick Start
 
 * Using `pyenv` to manage virtualenv's is recommended
@@ -40,7 +38,7 @@ the `sample-docs` folder, run:
 
 ```
 curl -X 'POST' \
-  'https://api.unstructured.io/sec-filings/v0.2.1/section' \
+  'http://localhost:8000/sec-filings/v0.2.1/section' \
   -H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
   -F 'text_files=@rgld-10-K-85535-000155837021011343.xbrl' \
@@ -131,7 +129,7 @@ You can always replace the header `-H 'accept: application/json'` with `-H 'acce
 
 ```
  curl -X 'POST' \
-  'https://api.unstructured.io/sec-filings/v0.2.1/section' \
+  'http://localhost:8000/sec-filings/v0.2.1/section' \
   -H 'accept: text/csv' \
   -H 'Content-Type: multipart/form-data' \
   -F 'text_files=@rgld-10-K-85535-000155837021011343.xbrl' \
@@ -146,7 +144,7 @@ In addition, you can add the form `-F 'output_schema=labelstudio'` if you want a
 
 ```
  curl -X 'POST' \
-  'https://api.unstructured.io/sec-filings/v0.2.1/section' \
+  'http://localhost:8000/sec-filings/v0.2.1/section' \
   -H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
   -F 'text_files=@rgld-10-K-85535-000155837021011343.xbrl' \
